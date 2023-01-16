@@ -67,15 +67,15 @@ namespace WindowControl
         //[DllImport("user32.dll", EntryPoint = "GetClassName")]
         //public static extern int GetClassName(IntPtr hWnd, StringBuilder lpClassName, int nMaxCount);
 
-        /// <summary>
-        /// 获取控件的名称（标题）
-        /// </summary>
-        /// <param name="hwnd">控件句柄</param>
-        /// <param name="lpString">存储字符的对象</param>
-        /// <param name="nMaxCount">获取字符的最大长度</param>
-        /// <returns>返回字符字节长度（一个中文字符算2个）</returns>
-        //[DllImportAttribute("user32.dll")]
-        //public static extern int GetWindowText(IntPtr hwnd, StringBuilder lpString, int nMaxCount);
+        ///<summary>
+        ///获取控件的名称（标题）
+        ///</summary>
+        ///<param name="hwnd">控件句柄</param>
+        ///<param name="lpString">存储字符的对象</param>
+        ///<param name="nMaxCount">获取字符的最大长度</param>
+        ///<returns>返回字符字节长度（一个中文字符算2个）</returns>
+        [DllImport("user32.dll")]
+        public static extern int GetWindowText(IntPtr hwnd, StringBuilder lpString, int nMaxCount);
 
         /// <summary>
         /// 获取窗口的创建者（线程或进程）
