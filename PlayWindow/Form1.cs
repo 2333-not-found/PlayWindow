@@ -59,7 +59,7 @@ namespace PlayWindow
 
         private void OnWindowResize()
         {
-            
+
         }
 
         private void btn_AddIntPtr_Click(object sender, EventArgs e)
@@ -91,11 +91,15 @@ namespace PlayWindow
         private void DEBUG_btn_setBodyPos_Click(object sender, EventArgs e)
         {
             var body = WDC.engine._tumbler.body;
-            var pos = new System.Numerics.Vector2((float)Convert.ToDouble(DEBUG_Engine_PosX.Text), (float)Convert.ToDouble(DEBUG_Engine_PosY.Text));
+            var pos = new System.Numerics.Vector2((float)DEBUG_Engine_PosX.Value, (float)DEBUG_Engine_PosY.Value);
             body.SetTransform(pos, 0);
             body.IsAwake = true;
         }
 
+        private void DEBUG_btn_addImpulse_Click(object sender, EventArgs e)
+        {
+            WDC.engine._tumbler.AddImpulse((IntPtr)Convert.ToInt32(DEBUG_tb_addImpulse.Text), new System.Numerics.Vector2((float)DEBUG_Engine_addImpulseX.Value, (float)DEBUG_Engine_addImpulseY.Value));
+        }
 
         #endregion
     }

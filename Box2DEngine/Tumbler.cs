@@ -18,7 +18,7 @@ namespace Box2DEngine
         public Tumbler()
         {
             World = new World();
-            World.Gravity = new Vector2(0.0f, -9.8f);
+            World.Gravity = new Vector2(0.0f, -50.0f);
 
             var h = Screen.PrimaryScreen.Bounds.Height;//获取含任务栏的屏幕大小
             var w = Screen.PrimaryScreen.Bounds.Width;
@@ -82,6 +82,24 @@ namespace Box2DEngine
             body.BodyType = BodyType.DynamicBody;
             body.UserData = intPtr;
             body.SetTransform(new Vector2(rect.X / PIXEL_TO_METER, rect.Y / PIXEL_TO_METER), 0);
+        }
+
+        public void AddImpulse(IntPtr target, Vector2 impulse)
+        {
+            foreach (var body in World.BodyList)
+            {
+                if (body.UserData != null)
+                {
+                    if (body.UserData.GetType() == typeof(IntPtr))
+                    {
+                        if((IntPtr)body.UserData == target)
+                        {
+                            //body.ApplyLinearImpulse(Impulse, null, true);
+                            body.ApplyLinearImpulseToCenter(impulse, true);
+                        }
+                    }
+                }
+            }
         }
 
         public void WorldToProcessing(in Vector2 input,out Vector2 output)
