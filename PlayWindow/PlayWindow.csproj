@@ -54,10 +54,6 @@
     <StartupObject />
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Box2DSharp, Version=0.6.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Box2DSharp\bin\Debug\netstandard2.0\Box2DSharp.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.configuration" />
     <Reference Include="System.Core" />
@@ -76,19 +72,15 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="FixedUpdate.cs" />
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Form1.Designer.cs">
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
-    <Compile Include="GameTime.cs" />
-    <Compile Include="NormalTest.cs" />
+    <Compile Include="GlobalEvent.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="TimerTicker.cs" />
-    <Compile Include="Tumbler.cs" />
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>
     </EmbeddedResource>
@@ -117,9 +109,9 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Global\Global.csproj">
-      <Project>{eb9437da-5d36-408f-8e68-b3b312fed866}</Project>
-      <Name>Global</Name>
+    <ProjectReference Include="..\Box2DEngine\Box2DEngine.csproj">
+      <Project>{48e55b7e-5177-4e66-a083-2a982ea17391}</Project>
+      <Name>Box2DEngine</Name>
     </ProjectReference>
     <ProjectReference Include="..\WindowDummy\WindowDummy.csproj">
       <Project>{ea883d19-443e-4fcd-88eb-a86e2306f11f}</Project>

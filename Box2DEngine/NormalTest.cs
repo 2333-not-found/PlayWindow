@@ -3,9 +3,9 @@ using System.Diagnostics;
 using System.Text;
 using System.Threading;
 using Box2DSharp.Dynamics;
-using NETCoreTest.Framework;
+using Box2DEngine.Framework;
 
-namespace NETCoreTest
+namespace Box2DEngine
 {
     public class NormalTest
     {
@@ -26,6 +26,7 @@ namespace NETCoreTest
         public void Run()
         {
             Console.Clear();
+            Console.WriteLine("Engine Starting!");
             _tumbler = new Tumbler();
             FixedUpdate = new FixedUpdate {UpdateCallback = Step};
             while (!_stopToken.IsCancellationRequested)
@@ -125,8 +126,8 @@ namespace NETCoreTest
                 _sb.AppendLine($"broad-phase [ave] (max) = {p.Broadphase} [{aveProfile.Broadphase}] ({MaxProfile.Broadphase})".PadRight(120));
 
                 Console.SetCursorPosition(0, 0);
-                Console.Write(_sb.ToString());
-                _sb.Clear();
+                //Console.Write(_sb.ToString());
+                //_sb.Clear();
             }
         }
     }

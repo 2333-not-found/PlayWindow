@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Global
+namespace GlobalEvent
 {
     public class Register
     {

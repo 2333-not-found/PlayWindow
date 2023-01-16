@@ -5,12 +5,12 @@ using System.Runtime.InteropServices;
 // 有关程序集的一般信息由以下
 // 控制。更改这些特性值可修改
 // 与程序集关联的信息。
-[assembly: AssemblyTitle("Global")]
+[assembly: AssemblyTitle("GlobalEvent")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("china")]
-[assembly: AssemblyProduct("Global")]
-[assembly: AssemblyCopyright("Copyright © china 2022")]
+[assembly: AssemblyProduct("GlobalEvent")]
+[assembly: AssemblyCopyright("Copyright © china 2023")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // 如果此项目向 COM 公开，则下列 GUID 用于类型库的 ID
-[assembly: Guid("eb9437da-5d36-408f-8e68-b3b312fed866")]
+[assembly: Guid("0bea1ff5-42dd-467e-af8e-c5014ff7de30")]
 
 // 程序集的版本信息由下列四个值组成: 
 //

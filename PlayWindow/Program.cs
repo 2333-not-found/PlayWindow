@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using Box2DSharp;
-using NETCoreTest;
 
 namespace PlayWindow
 {
@@ -19,8 +17,6 @@ namespace PlayWindow
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new Form1());
-            NormalTest normalTest = new NormalTest();
-            normalTest.Run();
         }
     }
 }

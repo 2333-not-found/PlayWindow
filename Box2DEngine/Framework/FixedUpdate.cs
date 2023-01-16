@@ -5,7 +5,7 @@
 using System;
 using System.Linq;
 
-namespace NETCoreTest.Framework
+namespace Box2DEngine.Framework
 {
     /// <summary>
     /// 固定间隔更新器

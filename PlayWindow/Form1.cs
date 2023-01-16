@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -9,7 +10,8 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Configuration;
 using WindowDummy;
-using Global;
+using GlobalEvent;
+using Box2DEngine;
 
 namespace PlayWindow
 {
@@ -17,6 +19,8 @@ namespace PlayWindow
     {
         public Configuration config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
         public ConnectionStringsSection csSection;
+
+        public NormalTest engine = new NormalTest();
 
         private bool isRotate;
 
@@ -27,12 +31,17 @@ namespace PlayWindow
             InitializeComponent();
             Start();
 
-            Global.Register.UpdateEvent += this.UpdateEvent;
+            GlobalEvent.Register.UpdateEvent += this.UpdateEvent;
             WindowDummy.WindowDummyInstance.OnWindowResize += this.OnWindowResize;
+            this.FormClosed += (sender, eventArgs) => { engine.Stop(); };
         }
 
         private void Start()
         {
+            Thread thread = new Thread(new ThreadStart(EngineThread));
+            thread.Start();
+
+
             csSection = config.ConnectionStrings;
             isRotate = Convert.ToBoolean(ConfigurationManager.ConnectionStrings["isRotate"].ConnectionString);
 
@@ -70,6 +79,11 @@ namespace PlayWindow
             }
         }
 
+        void EngineThread()
+        {
+            engine.Run();
+        }
+
         #region Debug stuff
 
         private void DEBUG_btn_openDummy_Click(object sender, EventArgs e)
@@ -80,7 +94,7 @@ namespace PlayWindow
 
         private void DEBUG_btn_manualGlobalUpdate_Click(object sender, EventArgs e)
         {
-            Global.Register.Update();
+            GlobalEvent.Register.Update();
         }
 
 

@@ -4,7 +4,7 @@
 
 using System;
 
-namespace NETCoreTest.Framework
+namespace Box2DEngine.Framework
 {
     /// <summary>
     /// Current timing used for variable-step (real time) or fixed-step (game time) games.

@@ -5,7 +5,7 @@
 using System;
 using System.Diagnostics;
 
-namespace NETCoreTest.Framework
+namespace Box2DEngine.Framework
 {
     public class TimerTick
     {

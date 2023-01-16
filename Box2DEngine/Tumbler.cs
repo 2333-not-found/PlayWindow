@@ -1,23 +1,18 @@
-﻿using System.Numerics;
+﻿using System;
+using System.Numerics;
+using System.Windows.Forms;
 using Box2DSharp.Collision.Shapes;
 using Box2DSharp.Common;
 using Box2DSharp.Dynamics;
 using Box2DSharp.Dynamics.Joints;
-using System;
 
-namespace NETCoreTest
+namespace Box2DEngine
 {
     public class Tumbler
     {
-        private const int Count = 800;
-
-        private RevoluteJoint _joint;
-
-        private int _count;
-
         public World World;
-
         public Body body;
+        public float PIXEL_TO_METER = 10;
 
         public Tumbler()
         {
@@ -29,6 +24,24 @@ namespace NETCoreTest
                 Position = new Vector2(0.0f, 10.0f)
             };
             body = World.CreateBody(bd);
+
+            //var h = Screen.PrimaryScreen.Bounds.Height;//获取含任务栏的屏幕大小
+            //var w = Screen.PrimaryScreen.Bounds.Width;
+            var w = SystemInformation.WorkingArea.Width;//获取不含任务栏的屏幕大小
+            var h = SystemInformation.WorkingArea.Height;
+            var wallDef = new BodyDef();
+            var wallBody = World.CreateBody(wallDef);
+
+            float wallLineOffset = 0;
+            EdgeShape wallShape = new EdgeShape();
+            wallShape.SetTwoSided(new Vector2(0, 0 + wallLineOffset), new Vector2(w / PIXEL_TO_METER, 0 + wallLineOffset));
+            wallBody.CreateFixture(wallShape, 0);//下
+            wallShape.SetTwoSided(new Vector2(0, h / PIXEL_TO_METER - wallLineOffset), new Vector2(w / PIXEL_TO_METER, h / PIXEL_TO_METER - wallLineOffset));
+            wallBody.CreateFixture(wallShape, 0);//上
+            wallShape.SetTwoSided(new Vector2(0 + wallLineOffset, h / PIXEL_TO_METER), new Vector2(0 + wallLineOffset, 0));
+            wallBody.CreateFixture(wallShape, 0);//左
+            wallShape.SetTwoSided(new Vector2(w / PIXEL_TO_METER - wallLineOffset, h / PIXEL_TO_METER), new Vector2(w / PIXEL_TO_METER - wallLineOffset, 0));
+            wallBody.CreateFixture(wallShape, 0);//右
 
             var shape = new PolygonShape();
             shape.SetAsBox(0.125f, 0.125f);

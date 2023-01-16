@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using Global;
+using GlobalEvent;
 
 namespace WindowDummy
 {
@@ -15,7 +15,7 @@ namespace WindowDummy
         [STAThread]
         static void Main()
         {
-            Global.Register.UpdateEvent += WindowDummyCenter.UpdateEvent;
+            GlobalEvent.Register.UpdateEvent += WindowDummyCenter.UpdateEvent;
         }
     }
 
