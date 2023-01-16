@@ -113,6 +113,10 @@
       <Project>{48e55b7e-5177-4e66-a083-2a982ea17391}</Project>
       <Name>Box2DEngine</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Box2DSharp\Box2DSharp.csproj">
+      <Project>{F6B67213-E9E7-43A5-9451-DEFCDB515708}</Project>
+      <Name>Box2DSharp</Name>
+    </ProjectReference>
     <ProjectReference Include="..\WindowDummy\WindowDummy.csproj">
       <Project>{ea883d19-443e-4fcd-88eb-a86e2306f11f}</Project>
       <Name>WindowDummy</Name>

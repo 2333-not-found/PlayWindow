@@ -82,6 +82,14 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Box2DEngine\Box2DEngine.csproj">
+      <Project>{48e55b7e-5177-4e66-a083-2a982ea17391}</Project>
+      <Name>Box2DEngine</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Box2DSharp\Box2DSharp.csproj">
+      <Project>{f6b67213-e9e7-43a5-9451-defcdb515708}</Project>
+      <Name>Box2DSharp</Name>
+    </ProjectReference>
     <ProjectReference Include="..\GlobalEvent\GlobalEvent.csproj">
       <Project>{0bea1ff5-42dd-467e-af8e-c5014ff7de30}</Project>
       <Name>GlobalEvent</Name>

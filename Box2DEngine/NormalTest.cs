@@ -4,29 +4,25 @@ using System.Text;
 using System.Threading;
 using Box2DSharp.Dynamics;
 using Box2DEngine.Framework;
+using System.Windows.Forms;
 
 namespace Box2DEngine
 {
     public class NormalTest
     {
         public FixedUpdate FixedUpdate;
-
-        private Tumbler _tumbler;
-
+        public Tumbler _tumbler;
         private readonly CancellationTokenSource _stopToken = new CancellationTokenSource();
-
         public Profile MaxProfile;
-
         public Profile TotalProfile;
-
         public bool Pause;
-
         public bool SingleStep;
 
         public void Run()
         {
             Console.Clear();
             Console.WriteLine("Engine Starting!");
+            Console.WriteLine("显示区域大小：" + Screen.PrimaryScreen.Bounds.Width + "x" + Screen.PrimaryScreen.Bounds.Height);
             _tumbler = new Tumbler();
             FixedUpdate = new FixedUpdate {UpdateCallback = Step};
             while (!_stopToken.IsCancellationRequested)

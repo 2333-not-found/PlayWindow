@@ -5,6 +5,7 @@ using Box2DSharp.Collision.Shapes;
 using Box2DSharp.Common;
 using Box2DSharp.Dynamics;
 using Box2DSharp.Dynamics.Joints;
+using WindowControl;
 
 namespace Box2DEngine
 {
@@ -12,23 +13,17 @@ namespace Box2DEngine
     {
         public World World;
         public Body body;
-        public float PIXEL_TO_METER = 10;
+        public float PIXEL_TO_METER = 3;
 
         public Tumbler()
         {
             World = new World();
+            World.Gravity = new Vector2(0.0f, -9.8f);
 
-            var bd = new BodyDef
-            {
-                BodyType = BodyType.DynamicBody,
-                Position = new Vector2(0.0f, 10.0f)
-            };
-            body = World.CreateBody(bd);
-
-            //var h = Screen.PrimaryScreen.Bounds.Height;//获取含任务栏的屏幕大小
-            //var w = Screen.PrimaryScreen.Bounds.Width;
-            var w = SystemInformation.WorkingArea.Width;//获取不含任务栏的屏幕大小
-            var h = SystemInformation.WorkingArea.Height;
+            var h = Screen.PrimaryScreen.Bounds.Height;//获取含任务栏的屏幕大小
+            var w = Screen.PrimaryScreen.Bounds.Width;
+            //var w = SystemInformation.WorkingArea.Width;//获取不含任务栏的屏幕大小
+            //var h = SystemInformation.WorkingArea.Height;
             var wallDef = new BodyDef();
             var wallBody = World.CreateBody(wallDef);
 
@@ -42,75 +37,56 @@ namespace Box2DEngine
             wallBody.CreateFixture(wallShape, 0);//左
             wallShape.SetTwoSided(new Vector2(w / PIXEL_TO_METER - wallLineOffset, h / PIXEL_TO_METER), new Vector2(w / PIXEL_TO_METER - wallLineOffset, 0));
             wallBody.CreateFixture(wallShape, 0);//右
-
-            var shape = new PolygonShape();
-            shape.SetAsBox(0.125f, 0.125f);
-            body.CreateFixture(shape, 1.0f);
-
-            /*
-            Body ground;
-            {
-                var bd = new BodyDef();
-                ground = World.CreateBody(bd);
-            }
-
-            {
-                var bd = new BodyDef
-                {
-                    BodyType = BodyType.DynamicBody,
-                    AllowSleep = false,
-                    Position = new Vector2(0.0f, 10.0f)
-                };
-                var body = World.CreateBody(bd);
-
-                var shape = new PolygonShape();
-                shape.SetAsBox(0.5f, 10.0f, new Vector2(10.0f, 0.0f), 0.0f);
-                body.CreateFixture(shape, 5.0f);
-                shape.SetAsBox(0.5f, 10.0f, new Vector2(-10.0f, 0.0f), 0.0f);
-                body.CreateFixture(shape, 5.0f);
-                shape.SetAsBox(10.0f, 0.5f, new Vector2(0.0f, 10.0f), 0.0f);
-                body.CreateFixture(shape, 5.0f);
-                shape.SetAsBox(10.0f, 0.5f, new Vector2(0.0f, -10.0f), 0.0f);
-                body.CreateFixture(shape, 5.0f);
-
-                var jd = new RevoluteJointDef
-                {
-                    BodyA = ground,
-                    BodyB = body,
-                    LocalAnchorA = new Vector2(0.0f, 10.0f),
-                    LocalAnchorB = new Vector2(0.0f, 0.0f),
-                    ReferenceAngle = 0.0f,
-                    MotorSpeed = 0.05f * Settings.Pi,
-                    MaxMotorTorque = 1e8f,
-                    EnableMotor = true
-                };
-                _joint = (RevoluteJoint)World.CreateJoint(jd);
-            }
-
-            _count = 0;*/
-
         }
 
         public void Step()
         {
             World.Step(1 / 60f, 8, 3);
-            /*
-            if (_count < Count)
+            Console.Clear();
+            if (body != null)
+                Console.WriteLine(body.GetPosition() + " " + body.IsAwake);
+
+            foreach(var body in World.BodyList)
             {
-                var bd = new BodyDef
+                if (body.UserData != null)
                 {
-                    BodyType = BodyType.DynamicBody,
-                    Position = new Vector2(0.0f, 10.0f)
-                };
-                var body = World.CreateBody(bd);
+                    Console.WriteLine("\n" + body.UserData.GetType());
+                    if (body.UserData.GetType() == typeof(IntPtr))
+                    {
+                        WorldToProcessing(body.GetTransform().Position, out var output);
+                        WindowFuncs.SetWindowPos((IntPtr)body.UserData, -2, (int)output.X, (int)output.Y, 0, 0, 1 | 4);
+                    }
+                }
+            }
+        }
 
-                var shape = new PolygonShape();
-                shape.SetAsBox(0.125f, 0.125f);
-                body.CreateFixture(shape, 1.0f);
+        public void AddBody(IntPtr intPtr)
+        {
+            var rect = WindowFuncs.GetWindowRectangle(intPtr);
+            var bodyDef = new BodyDef
+            {
+                BodyType = BodyType.DynamicBody,
+                Position = new Vector2(10.0f, 10.0f)
+            };
+            var shape = new PolygonShape();
+            var fixtureDef = new FixtureDef
+            {
+                Shape = shape
+            };
+            fixtureDef.Restitution = 0.5f;
+            fixtureDef.RestitutionThreshold = 80.0f;
+            fixtureDef.Density = 1.0f;
+            shape.SetAsBox(rect.Width / 2 / PIXEL_TO_METER, rect.Height / 2 / PIXEL_TO_METER);
+            body = World.CreateBody(bodyDef);
+            body.CreateFixture(fixtureDef);
+            body.BodyType = BodyType.DynamicBody;
+            body.UserData = intPtr;
+            body.SetTransform(new Vector2(rect.X / PIXEL_TO_METER, rect.Y / PIXEL_TO_METER), 0);
+        }
 
-                ++_count;
-            }*/
-            Console.WriteLine(body.GetPosition());
+        public void WorldToProcessing(in Vector2 input,out Vector2 output)
+        {
+            output = new Vector2(input.X * PIXEL_TO_METER, Screen.PrimaryScreen.Bounds.Height - input.Y * PIXEL_TO_METER);
         }
     }
 }

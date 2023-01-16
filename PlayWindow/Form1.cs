@@ -20,8 +20,6 @@ namespace PlayWindow
         public Configuration config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
         public ConnectionStringsSection csSection;
 
-        public NormalTest engine = new NormalTest();
-
         private bool isRotate;
 
         public WindowDummyCenter WDC = new WindowDummyCenter();
@@ -33,19 +31,17 @@ namespace PlayWindow
 
             GlobalEvent.Register.UpdateEvent += this.UpdateEvent;
             WindowDummy.WindowDummyInstance.OnWindowResize += this.OnWindowResize;
-            this.FormClosed += (sender, eventArgs) => { engine.Stop(); };
+            this.FormClosed += (sender, eventArgs) => { WDC.engine.Stop(); };
         }
 
         private void Start()
         {
-            Thread thread = new Thread(new ThreadStart(EngineThread));
-            thread.Start();
-
-
             csSection = config.ConnectionStrings;
             isRotate = Convert.ToBoolean(ConfigurationManager.ConnectionStrings["isRotate"].ConnectionString);
 
             cb_isRotate.Checked = isRotate;
+
+            WDC.StartEngine();
         }
 
         private void cb_isRotate_CheckedChanged(object sender, EventArgs e)
@@ -79,11 +75,6 @@ namespace PlayWindow
             }
         }
 
-        void EngineThread()
-        {
-            engine.Run();
-        }
-
         #region Debug stuff
 
         private void DEBUG_btn_openDummy_Click(object sender, EventArgs e)
@@ -95,6 +86,14 @@ namespace PlayWindow
         private void DEBUG_btn_manualGlobalUpdate_Click(object sender, EventArgs e)
         {
             GlobalEvent.Register.Update();
+        }
+
+        private void DEBUG_btn_setBodyPos_Click(object sender, EventArgs e)
+        {
+            var body = WDC.engine._tumbler.body;
+            var pos = new System.Numerics.Vector2((float)Convert.ToDouble(DEBUG_Engine_PosX.Text), (float)Convert.ToDouble(DEBUG_Engine_PosY.Text));
+            body.SetTransform(pos, 0);
+            body.IsAwake = true;
         }
 
 

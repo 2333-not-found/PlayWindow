@@ -34,18 +34,26 @@ namespace PlayWindow
             this.menuMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.notifyIcon1 = new System.Windows.Forms.NotifyIcon(this.components);
             this.tabPageMain = new System.Windows.Forms.TabPage();
+            this.btn_AddIntPtr = new System.Windows.Forms.Button();
+            this.intPtrLabel = new System.Windows.Forms.Label();
+            this.IntPtrTextBox = new System.Windows.Forms.TextBox();
             this.cb_isRotate = new System.Windows.Forms.CheckBox();
             this.tabControlMain = new System.Windows.Forms.TabControl();
             this.tabPageDebug = new System.Windows.Forms.TabPage();
+            this.DEBUG_Engine_groupBox = new System.Windows.Forms.GroupBox();
+            this.DEBUG_btn_setBodyPos = new System.Windows.Forms.Button();
+            this.DEBUG_Engine_Pos_label = new System.Windows.Forms.Label();
+            this.DEBUG_Engine_PosY = new System.Windows.Forms.NumericUpDown();
+            this.DEBUG_Engine_PosX = new System.Windows.Forms.NumericUpDown();
             this.DEBUG_btn_manualGlobalUpdate = new System.Windows.Forms.Button();
             this.DEBUG_btn_openDummy = new System.Windows.Forms.Button();
-            this.IntPtrTextBox = new System.Windows.Forms.TextBox();
-            this.intPtrLabel = new System.Windows.Forms.Label();
-            this.btn_AddIntPtr = new System.Windows.Forms.Button();
             this.contentMenuStrip.SuspendLayout();
             this.tabPageMain.SuspendLayout();
             this.tabControlMain.SuspendLayout();
             this.tabPageDebug.SuspendLayout();
+            this.DEBUG_Engine_groupBox.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.DEBUG_Engine_PosY)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.DEBUG_Engine_PosX)).BeginInit();
             this.SuspendLayout();
             // 
             // contentMenuStrip
@@ -82,6 +90,32 @@ namespace PlayWindow
             this.tabPageMain.Text = "Main";
             this.tabPageMain.UseVisualStyleBackColor = true;
             // 
+            // btn_AddIntPtr
+            // 
+            this.btn_AddIntPtr.Location = new System.Drawing.Point(210, 6);
+            this.btn_AddIntPtr.Name = "btn_AddIntPtr";
+            this.btn_AddIntPtr.Size = new System.Drawing.Size(75, 23);
+            this.btn_AddIntPtr.TabIndex = 3;
+            this.btn_AddIntPtr.Text = "添加";
+            this.btn_AddIntPtr.UseVisualStyleBackColor = true;
+            this.btn_AddIntPtr.Click += new System.EventHandler(this.btn_AddIntPtr_Click);
+            // 
+            // intPtrLabel
+            // 
+            this.intPtrLabel.AutoSize = true;
+            this.intPtrLabel.Location = new System.Drawing.Point(8, 11);
+            this.intPtrLabel.Name = "intPtrLabel";
+            this.intPtrLabel.Size = new System.Drawing.Size(53, 12);
+            this.intPtrLabel.TabIndex = 2;
+            this.intPtrLabel.Text = "窗口句柄";
+            // 
+            // IntPtrTextBox
+            // 
+            this.IntPtrTextBox.Location = new System.Drawing.Point(104, 7);
+            this.IntPtrTextBox.Name = "IntPtrTextBox";
+            this.IntPtrTextBox.Size = new System.Drawing.Size(100, 21);
+            this.IntPtrTextBox.TabIndex = 1;
+            // 
             // cb_isRotate
             // 
             this.cb_isRotate.AutoSize = true;
@@ -105,6 +139,7 @@ namespace PlayWindow
             // 
             // tabPageDebug
             // 
+            this.tabPageDebug.Controls.Add(this.DEBUG_Engine_groupBox);
             this.tabPageDebug.Controls.Add(this.DEBUG_btn_manualGlobalUpdate);
             this.tabPageDebug.Controls.Add(this.DEBUG_btn_openDummy);
             this.tabPageDebug.Location = new System.Drawing.Point(4, 22);
@@ -114,6 +149,74 @@ namespace PlayWindow
             this.tabPageDebug.TabIndex = 1;
             this.tabPageDebug.Text = "Debug";
             this.tabPageDebug.UseVisualStyleBackColor = true;
+            // 
+            // DEBUG_Engine_groupBox
+            // 
+            this.DEBUG_Engine_groupBox.Controls.Add(this.DEBUG_btn_setBodyPos);
+            this.DEBUG_Engine_groupBox.Controls.Add(this.DEBUG_Engine_Pos_label);
+            this.DEBUG_Engine_groupBox.Controls.Add(this.DEBUG_Engine_PosY);
+            this.DEBUG_Engine_groupBox.Controls.Add(this.DEBUG_Engine_PosX);
+            this.DEBUG_Engine_groupBox.Location = new System.Drawing.Point(122, 7);
+            this.DEBUG_Engine_groupBox.Name = "DEBUG_Engine_groupBox";
+            this.DEBUG_Engine_groupBox.Size = new System.Drawing.Size(287, 100);
+            this.DEBUG_Engine_groupBox.TabIndex = 2;
+            this.DEBUG_Engine_groupBox.TabStop = false;
+            this.DEBUG_Engine_groupBox.Text = "Engine";
+            // 
+            // DEBUG_btn_setBodyPos
+            // 
+            this.DEBUG_btn_setBodyPos.Location = new System.Drawing.Point(7, 19);
+            this.DEBUG_btn_setBodyPos.Name = "DEBUG_btn_setBodyPos";
+            this.DEBUG_btn_setBodyPos.Size = new System.Drawing.Size(107, 23);
+            this.DEBUG_btn_setBodyPos.TabIndex = 3;
+            this.DEBUG_btn_setBodyPos.Text = "设置body位置";
+            this.DEBUG_btn_setBodyPos.UseVisualStyleBackColor = true;
+            this.DEBUG_btn_setBodyPos.Click += new System.EventHandler(this.DEBUG_btn_setBodyPos_Click);
+            // 
+            // DEBUG_Engine_Pos_label
+            // 
+            this.DEBUG_Engine_Pos_label.AutoSize = true;
+            this.DEBUG_Engine_Pos_label.Location = new System.Drawing.Point(195, 25);
+            this.DEBUG_Engine_Pos_label.Name = "DEBUG_Engine_Pos_label";
+            this.DEBUG_Engine_Pos_label.Size = new System.Drawing.Size(11, 12);
+            this.DEBUG_Engine_Pos_label.TabIndex = 2;
+            this.DEBUG_Engine_Pos_label.Text = ",";
+            // 
+            // DEBUG_Engine_PosY
+            // 
+            this.DEBUG_Engine_PosY.DecimalPlaces = 3;
+            this.DEBUG_Engine_PosY.Location = new System.Drawing.Point(206, 20);
+            this.DEBUG_Engine_PosY.Maximum = new decimal(new int[] {
+            114514,
+            0,
+            0,
+            0});
+            this.DEBUG_Engine_PosY.Minimum = new decimal(new int[] {
+            114514,
+            0,
+            0,
+            -2147483648});
+            this.DEBUG_Engine_PosY.Name = "DEBUG_Engine_PosY";
+            this.DEBUG_Engine_PosY.Size = new System.Drawing.Size(75, 21);
+            this.DEBUG_Engine_PosY.TabIndex = 1;
+            // 
+            // DEBUG_Engine_PosX
+            // 
+            this.DEBUG_Engine_PosX.DecimalPlaces = 3;
+            this.DEBUG_Engine_PosX.Location = new System.Drawing.Point(120, 20);
+            this.DEBUG_Engine_PosX.Maximum = new decimal(new int[] {
+            114514,
+            0,
+            0,
+            0});
+            this.DEBUG_Engine_PosX.Minimum = new decimal(new int[] {
+            114514,
+            0,
+            0,
+            -2147483648});
+            this.DEBUG_Engine_PosX.Name = "DEBUG_Engine_PosX";
+            this.DEBUG_Engine_PosX.Size = new System.Drawing.Size(75, 21);
+            this.DEBUG_Engine_PosX.TabIndex = 0;
             // 
             // DEBUG_btn_manualGlobalUpdate
             // 
@@ -135,32 +238,6 @@ namespace PlayWindow
             this.DEBUG_btn_openDummy.UseVisualStyleBackColor = true;
             this.DEBUG_btn_openDummy.Click += new System.EventHandler(this.DEBUG_btn_openDummy_Click);
             // 
-            // IntPtrTextBox
-            // 
-            this.IntPtrTextBox.Location = new System.Drawing.Point(104, 7);
-            this.IntPtrTextBox.Name = "IntPtrTextBox";
-            this.IntPtrTextBox.Size = new System.Drawing.Size(100, 21);
-            this.IntPtrTextBox.TabIndex = 1;
-            // 
-            // intPtrLabel
-            // 
-            this.intPtrLabel.AutoSize = true;
-            this.intPtrLabel.Location = new System.Drawing.Point(8, 11);
-            this.intPtrLabel.Name = "intPtrLabel";
-            this.intPtrLabel.Size = new System.Drawing.Size(53, 12);
-            this.intPtrLabel.TabIndex = 2;
-            this.intPtrLabel.Text = "窗口句柄";
-            // 
-            // btn_AddIntPtr
-            // 
-            this.btn_AddIntPtr.Location = new System.Drawing.Point(210, 6);
-            this.btn_AddIntPtr.Name = "btn_AddIntPtr";
-            this.btn_AddIntPtr.Size = new System.Drawing.Size(75, 23);
-            this.btn_AddIntPtr.TabIndex = 3;
-            this.btn_AddIntPtr.Text = "添加";
-            this.btn_AddIntPtr.UseVisualStyleBackColor = true;
-            this.btn_AddIntPtr.Click += new System.EventHandler(this.btn_AddIntPtr_Click);
-            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
@@ -177,6 +254,10 @@ namespace PlayWindow
             this.tabPageMain.PerformLayout();
             this.tabControlMain.ResumeLayout(false);
             this.tabPageDebug.ResumeLayout(false);
+            this.DEBUG_Engine_groupBox.ResumeLayout(false);
+            this.DEBUG_Engine_groupBox.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.DEBUG_Engine_PosY)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.DEBUG_Engine_PosX)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -196,6 +277,11 @@ namespace PlayWindow
         private System.Windows.Forms.Label intPtrLabel;
         private System.Windows.Forms.TextBox IntPtrTextBox;
         private System.Windows.Forms.Button btn_AddIntPtr;
+        private System.Windows.Forms.GroupBox DEBUG_Engine_groupBox;
+        private System.Windows.Forms.Label DEBUG_Engine_Pos_label;
+        private System.Windows.Forms.NumericUpDown DEBUG_Engine_PosY;
+        private System.Windows.Forms.NumericUpDown DEBUG_Engine_PosX;
+        private System.Windows.Forms.Button DEBUG_btn_setBodyPos;
     }
 }
 

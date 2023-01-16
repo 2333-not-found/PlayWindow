@@ -10,6 +10,7 @@ using System.Windows.Forms;
 using System.Runtime.InteropServices;
 using WindowControl;
 using Rotate;
+using Box2DEngine;
 
 namespace WindowDummy
 {

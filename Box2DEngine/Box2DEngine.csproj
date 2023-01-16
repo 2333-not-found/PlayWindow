@@ -72,6 +72,10 @@
       <Project>{f6b67213-e9e7-43a5-9451-defcdb515708}</Project>
       <Name>Box2DSharp</Name>
     </ProjectReference>
+    <ProjectReference Include="..\WindowControl\WindowControl.csproj">
+      <Project>{7f5161e9-a7de-4dd1-99c9-72e25a684dcb}</Project>
+      <Name>WindowControl</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
