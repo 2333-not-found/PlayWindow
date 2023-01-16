@@ -6,7 +6,7 @@ namespace NETCoreTest
 {
     static class Program
     {
-        public static void NormalTest(string[] args)
+        public static void Main(string[] args)
         {
             var test = new NormalTest();
             Console.CancelKeyPress += (sender, eventArgs) => { test.Stop(); };

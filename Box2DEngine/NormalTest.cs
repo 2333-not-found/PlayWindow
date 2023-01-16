@@ -26,6 +26,7 @@ namespace NETCoreTest
         public void Run()
         {
             Console.Clear();
+            Console.WriteLine("Engine Starting!");
             _tumbler = new Tumbler();
             FixedUpdate = new FixedUpdate {UpdateCallback = Step};
             while (!_stopToken.IsCancellationRequested)

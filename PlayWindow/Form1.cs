@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Configuration;
 using WindowDummy;
-using Global;
+using GlobalEvent;
 
 namespace PlayWindow
 {
@@ -27,7 +27,7 @@ namespace PlayWindow
             InitializeComponent();
             Start();
 
-            Global.Register.UpdateEvent += this.UpdateEvent;
+            GlobalEvent.Register.UpdateEvent += this.UpdateEvent;
             WindowDummy.WindowDummyInstance.OnWindowResize += this.OnWindowResize;
         }
 
@@ -80,7 +80,7 @@ namespace PlayWindow
 
         private void DEBUG_btn_manualGlobalUpdate_Click(object sender, EventArgs e)
         {
-            Global.Register.Update();
+            GlobalEvent.Register.Update();
         }
 
 
