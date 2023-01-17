@@ -5,8 +5,7 @@ namespace GlobalEvent
     public class Register
     {
         public static event Action UpdateEvent;//声明一个事件 发布消息
-
-        public static void Update()
+        public static void UpdateEventAction()
         {
             UpdateEvent?.Invoke();
         }

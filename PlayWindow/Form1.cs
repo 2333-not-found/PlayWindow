@@ -10,8 +10,6 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Configuration;
 using WindowDummy;
-using GlobalEvent;
-using Box2DEngine;
 using WindowControl;
 
 namespace PlayWindow
@@ -21,30 +19,55 @@ namespace PlayWindow
         public Configuration config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
         public ConnectionStringsSection csSection;
 
+        //设置项
         private bool isRotate;
+        private string fromIntPtr;
 
+        public MouseHook.MouseHook mh;//钩子
         public WindowDummyCenter WDC = new WindowDummyCenter();
 
         public Form1()
         {
             InitializeComponent();
             Start();
-
-            GlobalEvent.Register.UpdateEvent += this.UpdateEvent;
-            WindowDummy.WindowDummyInstance.OnWindowResize += this.OnWindowResize;
-            this.FormClosed += (sender, eventArgs) => { WDC.engine.Stop(); };
         }
 
         private void Start()
         {
+            //初始化钩子
+            mh = new MouseHook.MouseHook();
+            mh.SetHook();
+
+            //添加事件
+            //GlobalEvent.Register.UpdateEvent += this.UpdateEvent;
+            argRefreshTimer.Tick += this.UpdateEvent;
+            WindowDummy.WindowDummyInstance.OnWindowResize += this.OnWindowResize;
+            mh.MouseDownEvent += OtherFuncs.MouseDownEvent;
+            mh.MouseUpEvent += OtherFuncs.MouseUpEvent;
+
+            //UI初始化
             csSection = config.ConnectionStrings;
             isRotate = Convert.ToBoolean(ConfigurationManager.ConnectionStrings["isRotate"].ConnectionString);
-
             cb_isRotate.Checked = isRotate;
+            fromIntPtr = ConfigurationManager.ConnectionStrings["fromIntPtr"].ConnectionString;
+            switch (fromIntPtr)
+            {
+                case "fromWindow":
+                    cb_intPtrFrom.SelectedIndex = 0;
+                    break;
+                case "fromWD":
+                    cb_intPtrFrom.SelectedIndex = 1;
+                    break;
+                default:
+                    cb_intPtrFrom.SelectedIndex = 0;
+                    break;
+            }
 
             WDC.StartEngine();
+            argRefreshTimer.Start();
         }
 
+        #region UI事件
         private void cb_isRotate_CheckedChanged(object sender, EventArgs e)
         {
             isRotate = cb_isRotate.Checked;
@@ -52,10 +75,41 @@ namespace PlayWindow
             config.Save();
             ConfigurationManager.RefreshSection("ConnectionStrings");
         }
-
-        private void UpdateEvent()
+        private void cb_intPtrFrom_SelectedIndexChanged(object sender, EventArgs e)
         {
-            Console.WriteLine("test");
+            switch (cb_intPtrFrom.SelectedIndex)
+            {
+                case 0:
+                    csSection.ConnectionStrings["fromIntPtr"].ConnectionString = "fromWindow";
+                    break;
+                case 1:
+                    csSection.ConnectionStrings["fromIntPtr"].ConnectionString = "fromWD";
+                    break;
+            }
+            config.Save();
+            ConfigurationManager.RefreshSection("ConnectionStrings");
+            cb_intPtrFromLabel.Text = "重启生效";
+        }
+        private void btn_AddIntPtr_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                WDC.NewDummy((IntPtr)Convert.ToInt64(IntPtrTextBox.Text));
+                IntPtrLabel.Text = "窗口句柄";
+            }
+            catch
+            {
+                IntPtrLabel.Text = "请输入有效的IntPtr";
+            }
+        }
+        #endregion
+
+        private void OnWindowResize()
+        {
+
+        }
+        private void UpdateEvent(object sender, EventArgs e)
+        {
             List<IntPtr> intPtrList = new List<IntPtr>();
             IntPtrListView.Items.Clear();
             foreach(var intptr in WDC.windowDummyInstances)
@@ -69,32 +123,20 @@ namespace PlayWindow
                 StringBuilder sb = new StringBuilder(255);
                 WindowFuncs.GetWindowText(intptr, sb, sb.Capacity);
                 item.SubItems[0].Text = sb.ToString();
-                ListViewItem.ListViewSubItem _subItem = new ListViewItem.ListViewSubItem();
-                _subItem.Text = Convert.ToString(intptr);
-                item.SubItems.Add(_subItem);
-                _subItem.Text = Convert.ToString(WindowFuncs.GetWindowRectangle(intptr));
-                item.SubItems.Add(_subItem);
+                ListViewItem.ListViewSubItem windowIntPtr = new ListViewItem.ListViewSubItem();
+                windowIntPtr.Text = Convert.ToString(intptr);
+                item.SubItems.Add(windowIntPtr);
+                ListViewItem.ListViewSubItem windowRect = new ListViewItem.ListViewSubItem();
+                windowRect.Text = Convert.ToString(WindowFuncs.GetWindowRectangle(intptr));
+                item.SubItems.Add(windowRect);
 
                 IntPtrListView.Items.Add(item);
             }
         }
-
-        private void OnWindowResize()
+        private void Form1_FormClosed(object sender, FormClosedEventArgs e)
         {
-
-        }
-
-        private void btn_AddIntPtr_Click(object sender, EventArgs e)
-        {
-            try
-            {
-                WDC.NewDummy((IntPtr)Convert.ToInt64(IntPtrTextBox.Text));
-                IntPtrLabel.Text = "窗口句柄";
-            }
-            catch
-            {
-                IntPtrLabel.Text = "请输入有效的IntPtr";
-            }
+            WDC.engine.Stop();
+            mh.UnHook();
         }
 
         #region Debug stuff
@@ -107,7 +149,7 @@ namespace PlayWindow
 
         private void DEBUG_btn_manualGlobalUpdate_Click(object sender, EventArgs e)
         {
-            GlobalEvent.Register.Update();
+            GlobalEvent.Register.UpdateEventAction();
         }
 
         private void DEBUG_btn_setBodyPos_Click(object sender, EventArgs e)

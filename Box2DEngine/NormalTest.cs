@@ -5,11 +5,15 @@ using System.Threading;
 using Box2DSharp.Dynamics;
 using Box2DEngine.Framework;
 using System.Windows.Forms;
+using System.Runtime.InteropServices;
 
 namespace Box2DEngine
 {
     public class NormalTest
     {
+        [DllImport("kernel32.dll")]
+        static extern IntPtr GetConsoleWindow();
+
         public FixedUpdate FixedUpdate;
         public Tumbler _tumbler;
         private readonly CancellationTokenSource _stopToken = new CancellationTokenSource();
@@ -20,7 +24,8 @@ namespace Box2DEngine
 
         public void Run()
         {
-            Console.Clear();
+            if (GetConsoleWindow() != IntPtr.Zero)
+                Console.Clear();
             Console.WriteLine("Engine Starting!");
             Console.WriteLine("显示区域大小：" + Screen.PrimaryScreen.Bounds.Width + "x" + Screen.PrimaryScreen.Bounds.Height);
             _tumbler = new Tumbler();
@@ -42,7 +47,7 @@ namespace Box2DEngine
 
         private void Step()
         {
-            if (Console.KeyAvailable)
+            if (GetConsoleWindow() != IntPtr.Zero && Console.KeyAvailable)
             {
                 var key = Console.ReadKey(true);
                 switch (key.Key)
@@ -121,7 +126,8 @@ namespace Box2DEngine
                 _sb.AppendLine($"solveTOI [ave] (max) = {p.SolveTOI} [{aveProfile.SolveTOI}] ({MaxProfile.SolveTOI})".PadRight(120));
                 _sb.AppendLine($"broad-phase [ave] (max) = {p.Broadphase} [{aveProfile.Broadphase}] ({MaxProfile.Broadphase})".PadRight(120));
 
-                Console.SetCursorPosition(0, 0);
+                if (GetConsoleWindow() != IntPtr.Zero)
+                    Console.SetCursorPosition(0, 0);
                 //Console.Write(_sb.ToString());
                 //_sb.Clear();
             }

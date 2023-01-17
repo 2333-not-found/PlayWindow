@@ -34,9 +34,11 @@ namespace PlayWindow
             this.menuMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.notifyIcon1 = new System.Windows.Forms.NotifyIcon(this.components);
             this.tabPageMain = new System.Windows.Forms.TabPage();
+            this.cb_intPtrFrom = new System.Windows.Forms.ComboBox();
             this.IntPtrListView = new System.Windows.Forms.ListView();
             this.IntPtrListView_WindowName = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.IntPtrListView_WindowIntPtr = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.IntPtrListView_WindowRect = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.btn_AddIntPtr = new System.Windows.Forms.Button();
             this.IntPtrLabel = new System.Windows.Forms.Label();
             this.IntPtrTextBox = new System.Windows.Forms.TextBox();
@@ -55,7 +57,8 @@ namespace PlayWindow
             this.DEBUG_Engine_PosX = new System.Windows.Forms.NumericUpDown();
             this.DEBUG_btn_manualGlobalUpdate = new System.Windows.Forms.Button();
             this.DEBUG_btn_openDummy = new System.Windows.Forms.Button();
-            this.IntPtrListView_WindowRect = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.argRefreshTimer = new System.Windows.Forms.Timer(this.components);
+            this.cb_intPtrFromLabel = new System.Windows.Forms.Label();
             this.contentMenuStrip.SuspendLayout();
             this.tabPageMain.SuspendLayout();
             this.tabControlMain.SuspendLayout();
@@ -89,6 +92,8 @@ namespace PlayWindow
             // 
             // tabPageMain
             // 
+            this.tabPageMain.Controls.Add(this.cb_intPtrFromLabel);
+            this.tabPageMain.Controls.Add(this.cb_intPtrFrom);
             this.tabPageMain.Controls.Add(this.IntPtrListView);
             this.tabPageMain.Controls.Add(this.btn_AddIntPtr);
             this.tabPageMain.Controls.Add(this.IntPtrLabel);
@@ -101,6 +106,20 @@ namespace PlayWindow
             this.tabPageMain.TabIndex = 0;
             this.tabPageMain.Text = "Main";
             this.tabPageMain.UseVisualStyleBackColor = true;
+            // 
+            // cb_intPtrFrom
+            // 
+            this.cb_intPtrFrom.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.cb_intPtrFrom.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cb_intPtrFrom.FormattingEnabled = true;
+            this.cb_intPtrFrom.Items.AddRange(new object[] {
+            "自原窗口",
+            "自WindowDummy"});
+            this.cb_intPtrFrom.Location = new System.Drawing.Point(409, 7);
+            this.cb_intPtrFrom.Name = "cb_intPtrFrom";
+            this.cb_intPtrFrom.Size = new System.Drawing.Size(81, 20);
+            this.cb_intPtrFrom.TabIndex = 5;
+            this.cb_intPtrFrom.SelectedIndexChanged += new System.EventHandler(this.cb_intPtrFrom_SelectedIndexChanged);
             // 
             // IntPtrListView
             // 
@@ -128,6 +147,11 @@ namespace PlayWindow
             // 
             this.IntPtrListView_WindowIntPtr.Text = "句柄";
             this.IntPtrListView_WindowIntPtr.Width = 72;
+            // 
+            // IntPtrListView_WindowRect
+            // 
+            this.IntPtrListView_WindowRect.Text = "窗口矩形大小";
+            this.IntPtrListView_WindowRect.Width = 100;
             // 
             // btn_AddIntPtr
             // 
@@ -157,6 +181,7 @@ namespace PlayWindow
             // 
             // cb_isRotate
             // 
+            this.cb_isRotate.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.cb_isRotate.AutoSize = true;
             this.cb_isRotate.Location = new System.Drawing.Point(496, 11);
             this.cb_isRotate.Name = "cb_isRotate";
@@ -347,10 +372,18 @@ namespace PlayWindow
             this.DEBUG_btn_openDummy.UseVisualStyleBackColor = true;
             this.DEBUG_btn_openDummy.Click += new System.EventHandler(this.DEBUG_btn_openDummy_Click);
             // 
-            // IntPtrListView_WindowRect
+            // argRefreshTimer
             // 
-            this.IntPtrListView_WindowRect.Text = "窗口矩形大小";
-            this.IntPtrListView_WindowRect.Width = 100;
+            this.argRefreshTimer.Interval = 200;
+            // 
+            // cb_intPtrFromLabel
+            // 
+            this.cb_intPtrFromLabel.AutoSize = true;
+            this.cb_intPtrFromLabel.Location = new System.Drawing.Point(291, 11);
+            this.cb_intPtrFromLabel.Name = "cb_intPtrFromLabel";
+            this.cb_intPtrFromLabel.Size = new System.Drawing.Size(113, 12);
+            this.cb_intPtrFromLabel.TabIndex = 6;
+            this.cb_intPtrFromLabel.Text = "物理引擎使用的句柄";
             // 
             // Form1
             // 
@@ -362,6 +395,7 @@ namespace PlayWindow
             this.MainMenuStrip = this.contentMenuStrip;
             this.Name = "Form1";
             this.Text = "Form1";
+            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.Form1_FormClosed);
             this.contentMenuStrip.ResumeLayout(false);
             this.contentMenuStrip.PerformLayout();
             this.tabPageMain.ResumeLayout(false);
@@ -407,6 +441,9 @@ namespace PlayWindow
         private System.Windows.Forms.ColumnHeader IntPtrListView_WindowName;
         private System.Windows.Forms.ColumnHeader IntPtrListView_WindowIntPtr;
         private System.Windows.Forms.ColumnHeader IntPtrListView_WindowRect;
+        private System.Windows.Forms.Timer argRefreshTimer;
+        private System.Windows.Forms.ComboBox cb_intPtrFrom;
+        private System.Windows.Forms.Label cb_intPtrFromLabel;
     }
 }
 

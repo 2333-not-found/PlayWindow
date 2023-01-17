@@ -5,7 +5,7 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{8F6C0CBB-8A5E-41FB-83CA-287591F62AD1}</ProjectGuid>
-    <OutputType>Exe</OutputType>
+    <OutputType>WinExe</OutputType>
     <RootNamespace>PlayWindow</RootNamespace>
     <AssemblyName>PlayWindow</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
@@ -87,7 +87,6 @@
     <Compile Include="Form1.Designer.cs">
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
-    <Compile Include="GlobalEvent.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="Form1.resx">
@@ -125,6 +124,10 @@
     <ProjectReference Include="..\Box2DSharp\Box2DSharp.csproj">
       <Project>{F6B67213-E9E7-43A5-9451-DEFCDB515708}</Project>
       <Name>Box2DSharp</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\GlobalEvent\GlobalEvent.csproj">
+      <Project>{0bea1ff5-42dd-467e-af8e-c5014ff7de30}</Project>
+      <Name>GlobalEvent</Name>
     </ProjectReference>
     <ProjectReference Include="..\WindowControl\WindowControl.csproj">
       <Project>{7f5161e9-a7de-4dd1-99c9-72e25a684dcb}</Project>

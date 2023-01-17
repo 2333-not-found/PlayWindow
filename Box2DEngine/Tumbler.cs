@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Numerics;
 using System.Windows.Forms;
 using Box2DSharp.Collision.Shapes;
@@ -7,17 +8,23 @@ using Box2DSharp.Dynamics;
 using Box2DSharp.Dynamics.Joints;
 using WindowControl;
 using GlobalEvent;
+using System.Runtime.InteropServices;
 
 namespace Box2DEngine
 {
     public class Tumbler
     {
+        [DllImport("kernel32.dll")]
+        static extern IntPtr GetConsoleWindow();
+
         public World World;
         public Body body;
         public float PIXEL_TO_METER = 30;
 
         public Tumbler()
         {
+            OtherFuncs.ThrowBodyEvent += this.ThrowBody;
+
             World = new World();
             World.Gravity = new Vector2(0.0f, -50.0f);
 
@@ -43,25 +50,31 @@ namespace Box2DEngine
         public void Step()
         {
             World.Step(1 / 60f, 8, 3);
-            Console.Clear();
+            if (GetConsoleWindow() != IntPtr.Zero)
+                Console.Clear();
             if (body != null)
                 Console.WriteLine(body.GetPosition() + " " + body.IsAwake);
 
-            var _ = World.BodyList;
-            foreach(var body in _)
+            LinkedList<Body> _bodyList = World.BodyList;
+            foreach(var body in _bodyList)
             {
                 if (body.UserData != null)
                 {
-                    Console.WriteLine("\n" + body.UserData.GetType());
                     if (body.UserData.GetType() == typeof(IntPtr))
                     {
                         WorldToProcessing(body.GetTransform().Position, out var output);
-                        WindowFuncs.SetWindowPos((IntPtr)body.UserData, -2, (int)output.X, (int)output.Y, 0, 0, 1 | 4);
+                        if (OtherFuncs.IsDraging((IntPtr)body.UserData))
+                        {
+                            //body.SetTransform(new Vector2(WindowFuncs.GetClientRectangle((IntPtr)body.UserData).X / PIXEL_TO_METER, WindowFuncs.GetClientRectangle((IntPtr)body.UserData).Y / PIXEL_TO_METER), body.GetTransform().Rotation.Angle);
+                            body.ApplyLinearImpulseToCenter(throwVector2, true);
+                        }
+                        else
+                            WindowFuncs.SetWindowPos((IntPtr)body.UserData, -2, (int)output.X, (int)output.Y, 0, 0, 1 | 4);
                     }
                 }
             }
 
-            GlobalEvent.Register.Update();
+            GlobalEvent.Register.UpdateEventAction();
         }
 
         public void AddBody(IntPtr intPtr)
@@ -104,6 +117,13 @@ namespace Box2DEngine
                     }
                 }
             }
+        }
+
+        private Vector2 throwVector2 = new Vector2();
+        public void ThrowBody(System.Drawing.Point p)
+        {
+            throwVector2.X = p.X;
+            throwVector2.Y = p.Y;
         }
 
         public void WorldToProcessing(in Vector2 input,out Vector2 output)

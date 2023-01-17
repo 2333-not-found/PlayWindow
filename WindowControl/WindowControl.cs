@@ -90,6 +90,10 @@ namespace WindowControl
         public static int WM_GETTEXT = 0x0D;
         //得到与一个窗口有关的文本的长度（不包含空字符）
         public static int WM_GETTEXTLENGTH = 0x0E;
+        /// <summary>
+        /// 获取激活窗口句柄
+        /// </summary>
+        /// <returns></returns>
         [DllImport("user32.dll")]
         public static extern IntPtr GetForegroundWindow();
 
@@ -137,7 +141,7 @@ namespace WindowControl
             return intPtr;
         }
 
-        public IntPtr GetHandleFromCursor(bool childrenOrRoot)
+        public static IntPtr GetHandleFromCursor(bool childrenOrRoot)
         {
             //this.Text = title + string.Format("坐标：X={0},Y={1}", Cursor.Position.X, Cursor.Position.Y);
 
@@ -249,11 +253,6 @@ namespace WindowControl
 
     public class OtherFuncs
     {
-        public Point GetMousePosition()
-        {
-            return new Point(Cursor.Position.X, Cursor.Position.Y);
-        }
-
         [System.Runtime.InteropServices.DllImportAttribute("gdi32.dll")]
         private static extern bool BitBlt(
                                         IntPtr hdcDest,    //目标DC的句柄
@@ -308,5 +307,198 @@ namespace WindowControl
             }
             return null;
         }
+
+        private static bool isLeftMouseDown;
+        private static Point pointDelta;
+        public static bool IsDraging(IntPtr intPtr)
+        {
+            if (WindowFuncs.GetRoot(WindowFuncs.GetHandleFromCursor(false)) == IntPtr.Zero)
+            {
+                if (WindowFuncs.GetForegroundWindow() == intPtr)
+                {
+                    if (isLeftMouseDown)
+                        return true;
+                }
+            }
+            return false;
+        }
+
+        public static void MouseDownEvent(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Left)
+            {
+                isLeftMouseDown = true;
+                pointDelta = e.Location;
+                ThrowBodyEvent(pointDelta);
+            }
+            else
+                isLeftMouseDown = false;
+        }
+        public static void MouseUpEvent(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Left)
+            {
+                isLeftMouseDown = true;
+                pointDelta = new Point(e.X - pointDelta.X, pointDelta.Y - e.Y);
+            }
+            isLeftMouseDown = false;
+        }
+        public delegate void ThrowBodyHandler(Point p);
+        public static event ThrowBodyHandler ThrowBodyEvent;
+    }
+}
+
+namespace MouseHook
+{
+    public class Win32Api
+    {
+        [StructLayout(LayoutKind.Sequential)]
+        public class POINT
+        {
+            public int x;
+            public int y;
+        }
+        [StructLayout(LayoutKind.Sequential)]
+        public class MouseHookStruct
+        {
+            public POINT pt;
+            public int hwnd;
+            public int wHitTestCode;
+            public int dwExtraInfo;
+        }
+        public delegate int HookProc(int nCode, IntPtr wParam, IntPtr lParam);
+        //安装钩子
+        [DllImport("user32.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.StdCall)]
+        public static extern int SetWindowsHookEx(int idHook, HookProc lpfn, IntPtr hInstance, int threadId);
+        //卸载钩子
+        [DllImport("user32.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.StdCall)]
+        public static extern bool UnhookWindowsHookEx(int idHook);
+        //调用下一个钩子
+        [DllImport("user32.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.StdCall)]
+        public static extern int CallNextHookEx(int idHook, int nCode, IntPtr wParam, IntPtr lParam);
+    }
+
+    public class MouseHook
+    {
+        private Point point;
+        private Point Point
+        {
+            get { return point; }
+            set
+            {
+                if (point != value)
+                {
+                    point = value;
+                    if (MouseMoveEvent != null)
+                    {
+                        var e = new MouseEventArgs(MouseButtons.None, 0, point.X, point.Y, 0);
+                        MouseMoveEvent(this, e);
+                    }
+                }
+            }
+        }
+        private int hHook;
+        private static int hMouseHook = 0;
+        private const int WM_MOUSEMOVE = 0x200;
+        private const int WM_LBUTTONDOWN = 0x201;
+        private const int WM_RBUTTONDOWN = 0x204;
+        private const int WM_MBUTTONDOWN = 0x207;
+        private const int WM_LBUTTONUP = 0x202;
+        private const int WM_RBUTTONUP = 0x205;
+        private const int WM_MBUTTONUP = 0x208;
+        private const int WM_LBUTTONDBLCLK = 0x203;
+        private const int WM_RBUTTONDBLCLK = 0x206;
+        private const int WM_MBUTTONDBLCLK = 0x209;
+
+        public const int WH_MOUSE_LL = 14;
+        public Win32Api.HookProc hProc;
+        public MouseHook()
+        {
+            this.Point = new Point();
+        }
+        public int SetHook()
+        {
+            hProc = new Win32Api.HookProc(MouseHookProc);
+            hHook = Win32Api.SetWindowsHookEx(WH_MOUSE_LL, hProc, IntPtr.Zero, 0);
+            return hHook;
+        }
+        public void UnHook()
+        {
+            Win32Api.UnhookWindowsHookEx(hHook);
+        }
+        private int MouseHookProc(int nCode, IntPtr wParam, IntPtr lParam)
+        {
+            Win32Api.MouseHookStruct MyMouseHookStruct = (Win32Api.MouseHookStruct)Marshal.PtrToStructure(lParam, typeof(Win32Api.MouseHookStruct));
+            if (nCode < 0)
+            {
+                return Win32Api.CallNextHookEx(hHook, nCode, wParam, lParam);
+            }
+            else
+            {
+                MouseButtons button = MouseButtons.None;
+                int clickCount = 0;
+                switch ((int)wParam)
+                {
+                    case WM_LBUTTONDOWN:
+                        button = MouseButtons.Left;
+                        clickCount = 1;
+                        if (MouseDownEvent != null)
+                            MouseDownEvent(this, new MouseEventArgs(button, clickCount, point.X, point.Y, 0));
+                        break;
+                    case WM_RBUTTONDOWN:
+                        button = MouseButtons.Right;
+                        clickCount = 1;
+                        if (MouseDownEvent != null)
+                            MouseDownEvent(this, new MouseEventArgs(button, clickCount, point.X, point.Y, 0));
+                        break;
+                    case WM_MBUTTONDOWN:
+                        button = MouseButtons.Middle;
+                        clickCount = 1;
+                        if (MouseDownEvent != null)
+                            MouseDownEvent(this, new MouseEventArgs(button, clickCount, point.X, point.Y, 0));
+                        break;
+                    case WM_LBUTTONUP:
+                        button = MouseButtons.Left;
+                        clickCount = 1;
+                        if (MouseUpEvent != null)
+                            MouseUpEvent(this, new MouseEventArgs(button, clickCount, point.X, point.Y, 0));
+                        break;
+                    case WM_RBUTTONUP:
+                        button = MouseButtons.Right;
+                        clickCount = 1;
+                        if (MouseUpEvent != null)
+                            MouseUpEvent(this, new MouseEventArgs(button, clickCount, point.X, point.Y, 0));
+                        break;
+                    case WM_MBUTTONUP:
+                        button = MouseButtons.Middle;
+                        clickCount = 1;
+                        if (MouseUpEvent != null)
+                            MouseUpEvent(this, new MouseEventArgs(button, clickCount, point.X, point.Y, 0));
+                        break;
+                    case WM_MOUSEMOVE:
+                        if (MouseMoveEvent != null)
+                        {
+                            point = new Point(MyMouseHookStruct.pt.x, MyMouseHookStruct.pt.y);
+                            var e = new MouseEventArgs(MouseButtons.Left, 0, point.X, point.Y, 0);
+                            MouseMoveEvent(this, e);
+                        }
+                        break;
+                    default:
+                        break;
+                }
+                if (MouseClickEvent != null)
+                    MouseClickEvent(this, new MouseEventArgs(button, clickCount, point.X, point.Y, 0));
+                this.Point = new Point(MyMouseHookStruct.pt.x, MyMouseHookStruct.pt.y);
+                return Win32Api.CallNextHookEx(hHook, nCode, wParam, lParam);
+            }
+        }
+        public delegate void MouseMoveHandler(object sender, MouseEventArgs e);
+        public event MouseMoveHandler MouseMoveEvent;
+        public delegate void MouseClickHandler(object sender, MouseEventArgs e);
+        public event MouseClickHandler MouseClickEvent;
+        public delegate void MouseDownHandler(object sender, MouseEventArgs e);
+        public event MouseDownHandler MouseDownEvent;
+        public delegate void MouseUpHandler(object sender, MouseEventArgs e);
+        public event MouseUpHandler MouseUpEvent;
     }
 }

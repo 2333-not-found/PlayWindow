@@ -47,5 +47,11 @@
     <Compile Include="WindowControl.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\GlobalEvent\GlobalEvent.csproj">
+      <Project>{0bea1ff5-42dd-467e-af8e-c5014ff7de30}</Project>
+      <Name>GlobalEvent</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
