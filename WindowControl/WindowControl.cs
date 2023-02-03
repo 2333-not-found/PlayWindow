@@ -213,7 +213,7 @@ namespace WindowControl
         private const uint WS_EX_LAYERED = 0x80000;
         private const int LWA_ALPHA = 0x2;
 
-        public void ChangeOpacity(IntPtr intPtr, int windowOpacity)
+        public static void ChangeOpacity(IntPtr intPtr, int windowOpacity)
         {
             SetWindowLong(intPtr, GWL_EXSTYLE, WS_EX_LAYERED);
             SetLayeredWindowAttributes(intPtr, 0, windowOpacity, LWA_ALPHA);
@@ -309,7 +309,8 @@ namespace WindowControl
         }
 
         private static bool isLeftMouseDown;
-        private static Point pointDelta;
+        public static Point pointDelta;
+        public MouseHook.Win32Api.MouseHookStruct MouseHookStruct;
         public static bool IsDraging(IntPtr intPtr)
         {
             if (WindowFuncs.GetRoot(WindowFuncs.GetHandleFromCursor(false)) == IntPtr.Zero)
@@ -322,14 +323,12 @@ namespace WindowControl
             }
             return false;
         }
-
         public static void MouseDownEvent(object sender, MouseEventArgs e)
         {
             if (e.Button == MouseButtons.Left)
             {
                 isLeftMouseDown = true;
                 pointDelta = e.Location;
-                ThrowBodyEvent(pointDelta);
             }
             else
                 isLeftMouseDown = false;
@@ -343,8 +342,10 @@ namespace WindowControl
             }
             isLeftMouseDown = false;
         }
-        public delegate void ThrowBodyHandler(Point p);
-        public static event ThrowBodyHandler ThrowBodyEvent;
+        public static void MouseMoveEvent(object sender,MouseEventArgs e)
+        {
+            pointDelta = e.Location;
+        }
     }
 }
 
@@ -412,6 +413,7 @@ namespace MouseHook
 
         public const int WH_MOUSE_LL = 14;
         public Win32Api.HookProc hProc;
+        public static Win32Api.MouseHookStruct MyMouseHookStruct;
         public MouseHook()
         {
             this.Point = new Point();
@@ -428,7 +430,7 @@ namespace MouseHook
         }
         private int MouseHookProc(int nCode, IntPtr wParam, IntPtr lParam)
         {
-            Win32Api.MouseHookStruct MyMouseHookStruct = (Win32Api.MouseHookStruct)Marshal.PtrToStructure(lParam, typeof(Win32Api.MouseHookStruct));
+            MyMouseHookStruct = (Win32Api.MouseHookStruct)Marshal.PtrToStructure(lParam, typeof(Win32Api.MouseHookStruct));
             if (nCode < 0)
             {
                 return Win32Api.CallNextHookEx(hHook, nCode, wParam, lParam);
@@ -492,13 +494,17 @@ namespace MouseHook
                 return Win32Api.CallNextHookEx(hHook, nCode, wParam, lParam);
             }
         }
-        public delegate void MouseMoveHandler(object sender, MouseEventArgs e);
-        public event MouseMoveHandler MouseMoveEvent;
+        public static Point GetMousePos()
+        {
+            return new Point(MyMouseHookStruct.pt.x, MyMouseHookStruct.pt.y);
+        }
         public delegate void MouseClickHandler(object sender, MouseEventArgs e);
         public event MouseClickHandler MouseClickEvent;
         public delegate void MouseDownHandler(object sender, MouseEventArgs e);
         public event MouseDownHandler MouseDownEvent;
         public delegate void MouseUpHandler(object sender, MouseEventArgs e);
         public event MouseUpHandler MouseUpEvent;
+        public delegate void MouseMoveHandler(object sender, MouseEventArgs e);
+        public event MouseMoveHandler MouseMoveEvent;
     }
 }

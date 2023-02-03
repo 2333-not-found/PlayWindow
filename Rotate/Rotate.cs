@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Drawing;
+using System.Drawing.Drawing2D;
+using System.Drawing.Imaging;
+using System.Numerics;
 
 namespace Rotate
 {
@@ -14,6 +17,20 @@ namespace Rotate
     {
         public double X;
         public double Y;
+        public static implicit operator mPoint(Point mPoint)
+        {
+            mPoint point = new mPoint();
+            point.X = mPoint.X;
+            point.Y = mPoint.Y;
+            return point;
+        }
+        public static implicit operator mPoint(Vector2 mPoint)
+        {
+            mPoint point = new mPoint();
+            point.X = mPoint.X;
+            point.Y = mPoint.Y;
+            return point;
+        }
     }
 
     public class Rotate
@@ -48,19 +65,19 @@ namespace Rotate
         }
 
         /// <summary>
-        /// 计算坐标1以坐标2为中心旋转后坐标
+        /// 计算坐标以圆心旋转后坐标
         /// </summary>
-        /// <param name="p1">坐标1</param>
-        /// <param name="ARotate">旋转角度</param>
-        /// <param name="p2">坐标2</param>
+        /// <param name="p1">坐标</param>
+        /// <param name="Angle">旋转角度</param>
+        /// <param name="p2">圆心</param>
         /// <param name="p3">旋转后坐标</param>
         /// <returns>运行状态</returns>
-        public static string RotateAngle(mPoint p1, mPoint p2, double ARotate, out mPoint p3)
+        public static string RotateAngle(mPoint p1, mPoint p2, double Angle, out mPoint p3)
         {
             try
             {
                 double Rad = 0;
-                Rad = ARotate * Math.Acos(-1) / 180;
+                Rad = Angle * Math.Acos(-1) / 180;
                 p3.X = (p2.X - p1.X) * Math.Cos(Rad) - (p2.Y - p1.Y) * Math.Sin(Rad) + p1.X;
                 p3.Y = (p2.Y - p1.Y) * Math.Cos(Rad) + (p2.X - p1.X) * Math.Sin(Rad) + p1.Y;
                 return "OK";
@@ -147,6 +164,46 @@ namespace Rotate
                     graphics.Dispose();
             }
             return destImage;
+        }
+
+        public static Bitmap KiRotate(Bitmap bmp, float angle, Color bkColor)
+        {
+            int w = bmp.Width + 2;
+            int h = bmp.Height + 2;
+
+            PixelFormat pf;
+
+            if (bkColor == Color.Transparent)
+            {
+                pf = PixelFormat.Format32bppArgb;
+            }
+            else
+            {
+                pf = bmp.PixelFormat;
+            }
+
+            Bitmap tmp = new Bitmap(w, h, pf);
+            Graphics g = Graphics.FromImage(tmp);
+            g.Clear(bkColor);
+            g.DrawImageUnscaled(bmp, 1, 1);
+            g.Dispose();
+
+            GraphicsPath path = new GraphicsPath();
+            path.AddRectangle(new RectangleF(0f, 0f, w, h));
+            Matrix mtrx = new Matrix();
+            mtrx.Rotate(angle);
+            RectangleF rct = path.GetBounds(mtrx);
+
+            Bitmap dst = new Bitmap((int)rct.Width, (int)rct.Height, pf);
+            g = Graphics.FromImage(dst);
+            g.Clear(bkColor);
+            g.TranslateTransform(-rct.X, -rct.Y);
+            g.RotateTransform(angle);
+            g.InterpolationMode = InterpolationMode.HighQualityBilinear;
+            g.DrawImageUnscaled(tmp, 0, 0);
+            g.Dispose();
+            tmp.Dispose();
+            return dst;
         }
     }
 }

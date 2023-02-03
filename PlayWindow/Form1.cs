@@ -23,7 +23,7 @@ namespace PlayWindow
         private bool isRotate;
         private string fromIntPtr;
 
-        public MouseHook.MouseHook mh;//钩子
+        public MouseHook.MouseHook mh;//钩子实例
         public WindowDummyCenter WDC = new WindowDummyCenter();
 
         public Form1()
@@ -40,10 +40,11 @@ namespace PlayWindow
 
             //添加事件
             //GlobalEvent.Register.UpdateEvent += this.UpdateEvent;
-            argRefreshTimer.Tick += this.UpdateEvent;
+            listRefreshTimer.Tick += this.UpdateEvent;
             WindowDummy.WindowDummyInstance.OnWindowResize += this.OnWindowResize;
             mh.MouseDownEvent += OtherFuncs.MouseDownEvent;
             mh.MouseUpEvent += OtherFuncs.MouseUpEvent;
+            mh.MouseMoveEvent += OtherFuncs.MouseMoveEvent;
 
             //UI初始化
             csSection = config.ConnectionStrings;
@@ -64,7 +65,7 @@ namespace PlayWindow
             }
 
             WDC.StartEngine();
-            argRefreshTimer.Start();
+            listRefreshTimer.Start();
         }
 
         #region UI事件
@@ -75,7 +76,7 @@ namespace PlayWindow
             config.Save();
             ConfigurationManager.RefreshSection("ConnectionStrings");
         }
-        private void cb_intPtrFrom_SelectedIndexChanged(object sender, EventArgs e)
+        private void cb_intPtrFrom_SelectionChangeCommitted(object sender, EventArgs e)
         {
             switch (cb_intPtrFrom.SelectedIndex)
             {
@@ -141,23 +142,9 @@ namespace PlayWindow
 
         #region Debug stuff
 
-        private void DEBUG_btn_openDummy_Click(object sender, EventArgs e)
-        {
-            WindowDummyInstance windowDummyInstance = new WindowDummyInstance();
-            windowDummyInstance.Show();
-        }
-
         private void DEBUG_btn_manualGlobalUpdate_Click(object sender, EventArgs e)
         {
             GlobalEvent.Register.UpdateEventAction();
-        }
-
-        private void DEBUG_btn_setBodyPos_Click(object sender, EventArgs e)
-        {
-            var body = WDC.engine._tumbler.body;
-            var pos = new System.Numerics.Vector2((float)DEBUG_Engine_PosX.Value, (float)DEBUG_Engine_PosY.Value);
-            body.SetTransform(pos, 0);
-            body.IsAwake = true;
         }
 
         private void DEBUG_btn_addImpulse_Click(object sender, EventArgs e)
@@ -166,5 +153,6 @@ namespace PlayWindow
         }
 
         #endregion
+
     }
 }

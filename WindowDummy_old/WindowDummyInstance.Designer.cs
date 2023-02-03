@@ -102,6 +102,7 @@ namespace WindowDummy
             this.Controls.Add(this.IntPtrLabel_p);
             this.Controls.Add(this.IntPtrLabel);
             this.Controls.Add(this.WindowPic);
+            this.DoubleBuffered = true;
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
             this.Name = "WindowDummyInstance";
             this.Text = "Form1";

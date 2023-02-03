@@ -7,8 +7,8 @@ using Box2DSharp.Common;
 using Box2DSharp.Dynamics;
 using Box2DSharp.Dynamics.Joints;
 using WindowControl;
-using GlobalEvent;
 using System.Runtime.InteropServices;
+using Rotate;
 
 namespace Box2DEngine
 {
@@ -16,17 +16,34 @@ namespace Box2DEngine
     {
         [DllImport("kernel32.dll")]
         static extern IntPtr GetConsoleWindow();
+        public List<IntPtr> windowDummyInstancesIntPtr;
 
         public World World;
         public Body body;
         public float PIXEL_TO_METER = 30;
 
+        [DllImport("user32.dll")]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        internal static extern bool GetCursorPos(ref Win32Point pt);
+
+        [StructLayout(LayoutKind.Sequential)]
+        internal struct Win32Point
+        {
+            public int X;
+            public int Y;
+        };
+        public static System.Drawing.Point GetMousePosition()
+        {
+            Win32Point w32Mouse = new Win32Point();
+            GetCursorPos(ref w32Mouse);
+            return new System.Drawing.Point(w32Mouse.X, w32Mouse.Y);
+        }
+
         public Tumbler()
         {
-            OtherFuncs.ThrowBodyEvent += this.ThrowBody;
-
             World = new World();
             World.Gravity = new Vector2(0.0f, -50.0f);
+            World.AllowSleep = true;
 
             var h = Screen.PrimaryScreen.Bounds.Height;//获取含任务栏的屏幕大小
             var w = Screen.PrimaryScreen.Bounds.Width;
@@ -52,24 +69,42 @@ namespace Box2DEngine
             World.Step(1 / 60f, 8, 3);
             if (GetConsoleWindow() != IntPtr.Zero)
                 Console.Clear();
-            if (body != null)
-                Console.WriteLine(body.GetPosition() + " " + body.IsAwake);
 
             LinkedList<Body> _bodyList = World.BodyList;
-            foreach(var body in _bodyList)
+            Body[] _ = new Body[_bodyList.Count];
+            _bodyList.CopyTo(_, 0);
+            foreach (Body body in _)
             {
                 if (body.UserData != null)
                 {
                     if (body.UserData.GetType() == typeof(IntPtr))
                     {
-                        WorldToProcessing(body.GetTransform().Position, out var output);
+                        var output = WorldToProcessing(body.GetTransform().Position);
                         if (OtherFuncs.IsDraging((IntPtr)body.UserData))
                         {
                             //body.SetTransform(new Vector2(WindowFuncs.GetClientRectangle((IntPtr)body.UserData).X / PIXEL_TO_METER, WindowFuncs.GetClientRectangle((IntPtr)body.UserData).Y / PIXEL_TO_METER), body.GetTransform().Rotation.Angle);
-                            body.ApplyLinearImpulseToCenter(throwVector2, true);
+                            body.ApplyLinearImpulseToCenter(new Vector2(OtherFuncs.pointDelta.X, OtherFuncs.pointDelta.Y), true);
+                            //WindowFuncs.SetWindowPos((IntPtr)body.UserData, -2, (int)output.X, (int)output.Y, 0, 0, 1 | 4);
                         }
                         else
-                            WindowFuncs.SetWindowPos((IntPtr)body.UserData, -2, (int)output.X, (int)output.Y, 0, 0, 1 | 4);
+                        {
+                            mPoint p1 = ProcessingToWorld(new Vector2(OtherFuncs.pointDelta.X, OtherFuncs.pointDelta.Y));
+                            var area = WindowFuncs.GetWindowRectangle((IntPtr)body.UserData);
+                            if (OtherFuncs.pointDelta.X > area.Left && OtherFuncs.pointDelta.X < area.Right && OtherFuncs.pointDelta.Y > area.Top && OtherFuncs.pointDelta.Y < area.Bottom)
+                            {
+                                Console.WriteLine("True!!1");
+                                mPoint p2 = WorldToProcessing(new Vector2(body.GetPosition().X, body.GetPosition().Y));
+                                Rotate.Rotate.RotateAngle(p1, p2, body.GetAngle() * (180 / Math.PI) % 360, out mPoint p3);
+                                p3 = WorldToProcessing(new Vector2((float)p3.X, (float)p3.X));
+                                WindowFuncs.SetWindowPos((IntPtr)body.UserData, -2, (int)((int)output.X + (p1.X - p3.X)), (int)((int)output.Y + (p1.Y - p3.Y)), 0, 0, 1 | 4);
+                            }
+                            else
+                            {
+                                WindowFuncs.SetWindowPos((IntPtr)body.UserData, -2, (int)output.X, (int)output.Y, 0, 0, 1 | 4);
+
+                                Console.WriteLine("False!!1");
+                            }
+                        }
                     }
                 }
             }
@@ -79,14 +114,14 @@ namespace Box2DEngine
 
         public void AddBody(IntPtr intPtr)
         {
-            var rect = WindowFuncs.GetWindowRectangle(intPtr);
-            var bodyDef = new BodyDef
+            System.Drawing.Rectangle rect = WindowFuncs.GetWindowRectangle(intPtr);
+            BodyDef bodyDef = new BodyDef
             {
                 BodyType = BodyType.DynamicBody,
                 Position = new Vector2(10.0f, 10.0f)
             };
-            var shape = new PolygonShape();
-            var fixtureDef = new FixtureDef
+            PolygonShape shape = new PolygonShape();
+            FixtureDef fixtureDef = new FixtureDef
             {
                 Shape = shape
             };
@@ -103,13 +138,13 @@ namespace Box2DEngine
 
         public void AddImpulse(IntPtr target, Vector2 impulse)
         {
-            foreach (var body in World.BodyList)
+            foreach (Body body in World.BodyList)
             {
                 if (body.UserData != null)
                 {
                     if (body.UserData.GetType() == typeof(IntPtr))
                     {
-                        if((IntPtr)body.UserData == target)
+                        if ((IntPtr)body.UserData == target)
                         {
                             //body.ApplyLinearImpulse(Impulse, null, true);
                             body.ApplyLinearImpulseToCenter(impulse, true);
@@ -118,17 +153,44 @@ namespace Box2DEngine
                 }
             }
         }
-
-        private Vector2 throwVector2 = new Vector2();
-        public void ThrowBody(System.Drawing.Point p)
+        public void RotateBody(IntPtr intPtr, float angle)
         {
-            throwVector2.X = p.X;
-            throwVector2.Y = p.Y;
+            foreach (Body body in World.BodyList)
+            {
+                if (body.UserData != null)
+                {
+                    if ((IntPtr)body.UserData == intPtr)
+                    {
+                        body.GetTransform().Rotation.Set((float)(-(((-body.GetAngle()) * 180.0f / Math.PI) + angle) / (Math.PI * 180)));
+                    }
+                }
+            }
         }
 
-        public void WorldToProcessing(in Vector2 input,out Vector2 output)
+        public Body GetBody(IntPtr intPtr)
         {
-            output = new Vector2(input.X * PIXEL_TO_METER, Screen.PrimaryScreen.Bounds.Height - input.Y * PIXEL_TO_METER);
+            foreach (Body body in World.BodyList)
+            {
+                if (body.UserData != null)
+                {
+                    if ((IntPtr)body.UserData == intPtr)
+                    {
+                        return body;
+                    }
+                }
+                else
+                    return null;
+            }
+            return null;
+        }
+
+        public Vector2 WorldToProcessing(Vector2 input)
+        {
+            return new Vector2(input.X * PIXEL_TO_METER, Screen.PrimaryScreen.Bounds.Height - (input.Y * PIXEL_TO_METER));
+        }
+        public Vector2 ProcessingToWorld(Vector2 input)
+        {
+            return new Vector2(input.X / PIXEL_TO_METER, (Screen.PrimaryScreen.Bounds.Height - input.Y) / PIXEL_TO_METER);
         }
     }
 }

@@ -272,18 +272,8 @@ namespace WindowDummy
         private void button1_Click(object sender, EventArgs e)
         {
             int angle = 30;
-            //调用方法获取旋转后的图像
-            Image rotateImage = Rotate.Rotate.GetRotateImage(srcImage, angle);
-            Graphics graphics = WindowPic.CreateGraphics();
-            graphics.Clear(Color.Gray);
-            //将旋转后的图像显示到pictureBox里
-            graphics.DrawImage(rotateImage, new Rectangle(0, 0, rotateImage.Width, rotateImage.Height));
-            //显示图像所占矩形区域
-            graphics.DrawRectangle(new Pen(Color.Yellow), new Rectangle(0, 0, rotateImage.Width, rotateImage.Height));
-            WindowPic.Width = rotateImage.Width;
-            WindowPic.Height = rotateImage.Height;
-            this.Width = rotateImage.Width;
-            this.Height = rotateImage.Height;
+
+            WindowPic.BackgroundImage = Rotate.Rotate.KiRotate(OtherFuncs.GetWindowBitmap(intPtr_p), angle, Color.Transparent);
         }
     }
 }
