@@ -23,7 +23,7 @@ namespace PlayWindow
         private bool isRotate;
         private string fromIntPtr;
 
-        public MouseHook.MouseHook mh;//钩子
+        public MouseHook.MouseHook mh;//钩子实例
         public WindowDummyCenter WDC = new WindowDummyCenter();
 
         public Form1()

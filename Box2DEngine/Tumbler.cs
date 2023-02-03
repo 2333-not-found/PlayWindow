@@ -56,7 +56,9 @@ namespace Box2DEngine
                 Console.WriteLine(body.GetPosition() + " " + body.IsAwake);
 
             LinkedList<Body> _bodyList = World.BodyList;
-            foreach(var body in _bodyList)
+            Body[] _ = new Body[_bodyList.Count];
+            _bodyList.CopyTo(_, 0);
+            foreach (Body body in _)
             {
                 if (body.UserData != null)
                 {
@@ -103,13 +105,13 @@ namespace Box2DEngine
 
         public void AddImpulse(IntPtr target, Vector2 impulse)
         {
-            foreach (var body in World.BodyList)
+            foreach (Body body in World.BodyList)
             {
                 if (body.UserData != null)
                 {
                     if (body.UserData.GetType() == typeof(IntPtr))
                     {
-                        if((IntPtr)body.UserData == target)
+                        if ((IntPtr)body.UserData == target)
                         {
                             //body.ApplyLinearImpulse(Impulse, null, true);
                             body.ApplyLinearImpulseToCenter(impulse, true);
@@ -117,6 +119,54 @@ namespace Box2DEngine
                     }
                 }
             }
+        }
+        public void RotateBody(IntPtr intPtr, float angle)
+        {
+            foreach (Body body in World.BodyList)
+            {
+                if (body.UserData != null)
+                {
+                    if ((IntPtr)body.UserData == intPtr)
+                    {
+                        body.GetTransform().Rotation.Set((float)(-(((-body.GetAngle()) * 180.0f / Math.PI) + angle) / (Math.PI * 180)));
+                    }
+                }
+            }
+        }
+
+        public float GetBodyAngle(IntPtr intPtr)
+        {
+            foreach (Body body in World.BodyList)
+            {
+                if (body.UserData != null)
+                {
+                    if ((IntPtr)body.UserData == intPtr)
+                    {
+                        return (float)((-body.GetAngle()) * 180.0f / Math.PI);
+                    }
+                }
+                else
+                    return 2147483647f;
+            }
+            return 2147483647f;
+        }
+        public static float GetBodyAngle(IntPtr intPtr, World world)
+        {
+            foreach (Body body in world.BodyList)
+            {
+                if (body.UserData != null)
+                {
+                    if ((IntPtr)body.UserData == intPtr)
+                    {
+                        float angle = body.GetAngle();
+                        float result = (float)(angle * 180 / Math.PI);
+                        return result;
+                    }
+                }
+                else
+                    return 2147483647f;
+            }
+            return 2147483647f;
         }
 
         private Vector2 throwVector2 = new Vector2();
@@ -126,7 +176,7 @@ namespace Box2DEngine
             throwVector2.Y = p.Y;
         }
 
-        public void WorldToProcessing(in Vector2 input,out Vector2 output)
+        public void WorldToProcessing(in Vector2 input, out Vector2 output)
         {
             output = new Vector2(input.X * PIXEL_TO_METER, Screen.PrimaryScreen.Bounds.Height - input.Y * PIXEL_TO_METER);
         }

@@ -1,0 +1,18 @@
+﻿<Window x:Class="WindowDummy.WindowDummyInstance"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:WindowDummy"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="450" Width="800" WindowStyle="None" ResizeMode="CanMinimize" Background="White" Topmost="True">
+    <Grid>
+        <Image x:Name="WindowPic" Margin="0,0,0,0" IsEnabled="False" Grid.ColumnSpan="2"/>
+        <Border BorderThickness="3" BorderBrush="Red" Grid.ColumnSpan="2" Margin="0,0,0,0" />
+        <Label x:Name="IntPtrLabel" Content="Label" Margin="21,18,671,0" VerticalAlignment="Top"/>
+        <Label x:Name="RECTLabel_p" Content="Label" HorizontalAlignment="Left" Margin="21,50,0,0" VerticalAlignment="Top" Width="224"/>
+        <Label x:Name="IntPtrLabel_p" Content="Label" HorizontalAlignment="Left" Margin="129,18,0,0" VerticalAlignment="Top" Width="116"/>
+        <Button Content="顺时针旋转90度" HorizontalAlignment="Left" Margin="250,54,0,0" VerticalAlignment="Top" Width="102" Click="Button_Click"/>
+
+    </Grid>
+</Window>
