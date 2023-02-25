@@ -27,23 +27,25 @@ namespace WindowDummy
 
         public void StartEngine()
         {
-            Thread thread = new Thread(new ThreadStart(EngineThread));
-            thread.Name = "EngineThread";
+            Thread thread = new Thread(new ThreadStart(EngineThread))
+            {
+                Name = "EngineThread"
+            };
             thread.Start();
         }
 
-        public void EngineThread()
+        private void EngineThread()
         {
             engine.Run();
         }
 
-        public void NewDummy(IntPtr intPtr)
+        public bool NewDummy(IntPtr intPtr)
         {
             //检查IntPtr是否有效
             if (OtherFuncs.GetWindowBitmap(WindowFuncs.GetRoot(intPtr)) == null)
             {
                 MessageBox.Show("无效的IntPtr!");
-                return;
+                return false;
             }
             WindowDummyInstance windowDummyInstance = new WindowDummyInstance
             {
@@ -52,7 +54,7 @@ namespace WindowDummy
             };
             windowDummyInstance.Show();
             windowDummyInstances.Add(windowDummyInstance);
-            engine._tumbler.AddBody(intPtr);
+            return true;
         }
     }
 }

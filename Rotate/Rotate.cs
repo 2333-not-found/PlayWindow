@@ -61,7 +61,6 @@ namespace Rotate
             C.X = (g * b - c * f) / (e * b - a * f);
             C.Y = (a * g - c * e) / (a * f - b * e);
             C.R = Math.Sqrt((C.X - x1) * (C.X - x1) + (C.Y - y1) * (C.Y - y1));
-
         }
 
         /// <summary>

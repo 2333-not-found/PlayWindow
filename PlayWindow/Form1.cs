@@ -41,7 +41,6 @@ namespace PlayWindow
             //添加事件
             //GlobalEvent.Register.UpdateEvent += this.UpdateEvent;
             listRefreshTimer.Tick += this.UpdateEvent;
-            WindowDummy.WindowDummyInstance.OnWindowResize += this.OnWindowResize;
             mh.MouseDownEvent += OtherFuncs.MouseDownEvent;
             mh.MouseUpEvent += OtherFuncs.MouseUpEvent;
             mh.MouseMoveEvent += OtherFuncs.MouseMoveEvent;
@@ -66,6 +65,7 @@ namespace PlayWindow
 
             WDC.StartEngine();
             listRefreshTimer.Start();
+            IntPtrTextBox.Focus();
         }
 
         #region UI事件
@@ -93,42 +93,40 @@ namespace PlayWindow
         }
         private void btn_AddIntPtr_Click(object sender, EventArgs e)
         {
-            try
+            if (WDC.NewDummy((IntPtr)Convert.ToInt64(IntPtrTextBox.Text)))
             {
-                WDC.NewDummy((IntPtr)Convert.ToInt64(IntPtrTextBox.Text));
                 IntPtrLabel.Text = "窗口句柄";
             }
-            catch
+            else
             {
                 IntPtrLabel.Text = "请输入有效的IntPtr";
             }
         }
         #endregion
 
-        private void OnWindowResize()
-        {
-
-        }
         private void UpdateEvent(object sender, EventArgs e)
         {
-            List<IntPtr> intPtrList = new List<IntPtr>();
             IntPtrListView.Items.Clear();
-            foreach(var intptr in WDC.windowDummyInstances)
-            {
-                intPtrList.Add(intptr.intPtr_p);
-            }
-            intPtrList.TrimExcess();
-            foreach(var intptr in intPtrList)
+            foreach (var intptr in WDC.windowDummyInstances)
             {
                 ListViewItem item = new ListViewItem();
                 StringBuilder sb = new StringBuilder(255);
-                WindowFuncs.GetWindowText(intptr, sb, sb.Capacity);
+                WindowFuncs.GetWindowText(intptr.intPtr_p, sb, sb.Capacity);
                 item.SubItems[0].Text = sb.ToString();
-                ListViewItem.ListViewSubItem windowIntPtr = new ListViewItem.ListViewSubItem();
-                windowIntPtr.Text = Convert.ToString(intptr);
+                ListViewItem.ListViewSubItem windowIntPtr = new ListViewItem.ListViewSubItem
+                {
+                    Text = Convert.ToString(intptr.intPtr)
+                };
                 item.SubItems.Add(windowIntPtr);
-                ListViewItem.ListViewSubItem windowRect = new ListViewItem.ListViewSubItem();
-                windowRect.Text = Convert.ToString(WindowFuncs.GetWindowRectangle(intptr));
+                ListViewItem.ListViewSubItem windowIntPtrDummy = new ListViewItem.ListViewSubItem
+                {
+                    Text = Convert.ToString(intptr.intPtr_p)
+                };
+                item.SubItems.Add(windowIntPtrDummy);
+                ListViewItem.ListViewSubItem windowRect = new ListViewItem.ListViewSubItem
+                {
+                    Text = Convert.ToString(WindowFuncs.GetWindowRectangle(intptr.intPtr_p))
+                };
                 item.SubItems.Add(windowRect);
 
                 IntPtrListView.Items.Add(item);
@@ -152,7 +150,11 @@ namespace PlayWindow
             WDC.engine._tumbler.AddImpulse((IntPtr)Convert.ToInt32(DEBUG_tb_addImpulse.Text), new System.Numerics.Vector2((float)DEBUG_Engine_addImpulseX.Value, (float)DEBUG_Engine_addImpulseY.Value));
         }
 
-        #endregion
+        private void DEBUG_btn_rotateBody_Click(object sender, EventArgs e)
+        {
+            WDC.engine._tumbler.RotateBody((IntPtr)Convert.ToInt32(DEBUG_tb_rotateBody.Text), (float)DEBUG_Engine_rotateBody.Value);
+        }
 
+        #endregion
     }
 }

@@ -230,7 +230,6 @@ namespace WindowControl
         {
             RECT rect = new RECT();
             GetClientRect(intPtr, ref rect);
-
             return new Rectangle(rect.Left, rect.Top, rect.Right - rect.Left, rect.Bottom - rect.Top);
         }
 
@@ -444,38 +443,32 @@ namespace MouseHook
                     case WM_LBUTTONDOWN:
                         button = MouseButtons.Left;
                         clickCount = 1;
-                        if (MouseDownEvent != null)
-                            MouseDownEvent(this, new MouseEventArgs(button, clickCount, point.X, point.Y, 0));
+                        MouseDownEvent?.Invoke(this, new MouseEventArgs(button, clickCount, point.X, point.Y, 0));
                         break;
                     case WM_RBUTTONDOWN:
                         button = MouseButtons.Right;
                         clickCount = 1;
-                        if (MouseDownEvent != null)
-                            MouseDownEvent(this, new MouseEventArgs(button, clickCount, point.X, point.Y, 0));
+                        MouseDownEvent?.Invoke(this, new MouseEventArgs(button, clickCount, point.X, point.Y, 0));
                         break;
                     case WM_MBUTTONDOWN:
                         button = MouseButtons.Middle;
                         clickCount = 1;
-                        if (MouseDownEvent != null)
-                            MouseDownEvent(this, new MouseEventArgs(button, clickCount, point.X, point.Y, 0));
+                        MouseDownEvent?.Invoke(this, new MouseEventArgs(button, clickCount, point.X, point.Y, 0));
                         break;
                     case WM_LBUTTONUP:
                         button = MouseButtons.Left;
                         clickCount = 1;
-                        if (MouseUpEvent != null)
-                            MouseUpEvent(this, new MouseEventArgs(button, clickCount, point.X, point.Y, 0));
+                        MouseUpEvent?.Invoke(this, new MouseEventArgs(button, clickCount, point.X, point.Y, 0));
                         break;
                     case WM_RBUTTONUP:
                         button = MouseButtons.Right;
                         clickCount = 1;
-                        if (MouseUpEvent != null)
-                            MouseUpEvent(this, new MouseEventArgs(button, clickCount, point.X, point.Y, 0));
+                        MouseUpEvent?.Invoke(this, new MouseEventArgs(button, clickCount, point.X, point.Y, 0));
                         break;
                     case WM_MBUTTONUP:
                         button = MouseButtons.Middle;
                         clickCount = 1;
-                        if (MouseUpEvent != null)
-                            MouseUpEvent(this, new MouseEventArgs(button, clickCount, point.X, point.Y, 0));
+                        MouseUpEvent?.Invoke(this, new MouseEventArgs(button, clickCount, point.X, point.Y, 0));
                         break;
                     case WM_MOUSEMOVE:
                         if (MouseMoveEvent != null)
@@ -488,8 +481,7 @@ namespace MouseHook
                     default:
                         break;
                 }
-                if (MouseClickEvent != null)
-                    MouseClickEvent(this, new MouseEventArgs(button, clickCount, point.X, point.Y, 0));
+                MouseClickEvent?.Invoke(this, new MouseEventArgs(button, clickCount, point.X, point.Y, 0));
                 this.Point = new Point(MyMouseHookStruct.pt.x, MyMouseHookStruct.pt.y);
                 return Win32Api.CallNextHookEx(hHook, nCode, wParam, lParam);
             }

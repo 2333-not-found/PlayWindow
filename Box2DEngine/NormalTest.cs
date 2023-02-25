@@ -29,7 +29,7 @@ namespace Box2DEngine
             Console.WriteLine("Engine Starting!");
             Console.WriteLine("显示区域大小：" + Screen.PrimaryScreen.Bounds.Width + "x" + Screen.PrimaryScreen.Bounds.Height);
             _tumbler = new Tumbler();
-            FixedUpdate = new FixedUpdate {UpdateCallback = Step};
+            FixedUpdate = new FixedUpdate { UpdateCallback = Step };
             while (!_stopToken.IsCancellationRequested)
             {
                 FixedUpdate.Tick();
@@ -52,13 +52,13 @@ namespace Box2DEngine
                 var key = Console.ReadKey(true);
                 switch (key.Key)
                 {
-                case ConsoleKey.P:
-                    Pause = !Pause;
-                    break;
+                    case ConsoleKey.P:
+                        Pause = !Pause;
+                        break;
 
-                case ConsoleKey.O:
-                    SingleStep = true;
-                    break;
+                    case ConsoleKey.O:
+                        SingleStep = true;
+                        break;
                 }
             }
 

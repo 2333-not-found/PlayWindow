@@ -1,4 +1,5 @@
-﻿using Rotate;
+﻿using Box2DSharp.Dynamics;
+using Rotate;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,6 +20,7 @@ using System.Windows.Shapes;
 using System.Windows.Shell;
 using System.Windows.Threading;
 using WindowControl;
+using Box2DEngine;
 
 namespace WindowDummy
 {
@@ -27,18 +29,17 @@ namespace WindowDummy
     /// </summary>
     public partial class WindowDummyInstance : Window
     {
-        public IntPtr intPtr;
-        public IntPtr intPtr_p;
+        public IntPtr intPtr;//窗口的IntPtr
+        public IntPtr intPtr_p;//根窗口的IntPtr
+        public IntPtr this_intPtr;//Dummy的IntPtr
         public System.Drawing.Rectangle p_Rectangle;
         public System.Drawing.Rectangle clientRectangle;
         public System.Drawing.Bitmap srcImage = null;
-        public Box2DEngine.Tumbler tumbler;
-        public Box2DSharp.Dynamics.Body body;
+        public Tumbler tumbler;
+        public Body body;
 
-        private static bool CurrentTransparent = false;
+        public static readonly bool CurrentTransparent = false;
         private readonly DispatcherTimer UpdateTimer = new DispatcherTimer();
-
-        public static event Action OnWindowResize;
 
         /// <summary>
         /// 主窗体句柄
@@ -105,9 +106,19 @@ namespace WindowDummy
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
             //第零步：初始化参数
-            body = tumbler.GetBody(intPtr_p);
             UpdateTimer.Tick += UpdateEvent;
             intPtr_p = WindowFuncs.GetRoot(intPtr);
+            intPtr = GetWindowHwndSource(this);
+            this_intPtr = GetWindowHwndSource(this);
+            var rect = WindowFuncs.GetWindowRectangle(intPtr_p);
+            UserData userData = new UserData()
+            {
+                intPtr_p = intPtr_p,
+                this_intPtr = this_intPtr,
+                rect = rect
+            };
+            tumbler.AddBody(intPtr_p, new Vector2(rect.X, rect.Y), userData);
+            body = tumbler.GetBody(intPtr_p);
             WindowFuncs.ChangeOpacity(intPtr_p, 20);
 
             //第二步：截图并填充图像
@@ -175,15 +186,60 @@ namespace WindowDummy
             WindowPic.Source = ToImageSource(OtherFuncs.GetWindowBitmap(intPtr_p));
             WindowPic.Width = WindowPic.Source.Width;
             WindowPic.Height = WindowPic.Source.Height;
-            RotateTransform rt = new RotateTransform();
-            rt.Angle = -(body.GetAngle() * (180 / Math.PI) % 360);
+            RotateTransform rt = new RotateTransform
+            {
+                Angle = -(body.GetAngle() * (180 / Math.PI) % 360)
+            };
             ContentGrid.RenderTransformOrigin = new Point(0.5, 0.5);
             ContentGrid.RenderTransform = rt;
 
             //移动
+            var userData = body.UserData as UserData;
+            LinkedList<Body> _bodyList = tumbler.World.BodyList;
+            Body[] _ = new Body[_bodyList.Count];
+            _bodyList.CopyTo(_, 0);
+            foreach (Body body in _)
+            {
+                if (body.UserData != null)
+                {
+                    userData = body.UserData as UserData;
+                    var output = tumbler.WorldToProcessing(body.GetTransform().Position);
+                    if (OtherFuncs.IsDraging(userData.intPtr_p))
+                    {
+                        //body.SetTransform(new Vector2(WindowFuncs.GetClientRectangle((IntPtr)body.UserData).X / PIXEL_TO_METER, WindowFuncs.GetClientRectangle((IntPtr)body.UserData).Y / PIXEL_TO_METER), body.GetTransform().Rotation.Angle);
+                        body.ApplyLinearImpulseToCenter(new Vector2(OtherFuncs.pointDelta.X, OtherFuncs.pointDelta.Y), true);
+                        //WindowFuncs.SetWindowPos((IntPtr)body.UserData, -2, (int)output.X, (int)output.Y, 0, 0, 1 | 4);
+                    }
+                    else
+                    {
+                        mPoint p1 = tumbler.ProcessingToWorld(new Vector2(OtherFuncs.pointDelta.X, OtherFuncs.pointDelta.Y));//世界坐标的p1
+                        var area = WindowFuncs.GetWindowRectangle(this_intPtr);
+                        if (OtherFuncs.pointDelta.X > area.Left && OtherFuncs.pointDelta.X < area.Right && OtherFuncs.pointDelta.Y > area.Top && OtherFuncs.pointDelta.Y < area.Bottom)
+                        {
+                            mPoint p2 = body.GetPosition();//世界坐标的p2
+                            Rotate.Rotate.RotateAngle(p1, p2, body.GetAngle() * (180 / Math.PI) % 360, out mPoint p3);
+                            //p3 = WorldToProcessing(new Vector2((float)p3.X, (float)p3.Y));
+                            WindowFuncs.SetWindowPos(intPtr_p, -2, (int)((int)output.X + (p1.X - p3.X)), (int)((int)output.Y + (p1.Y - p3.Y)), 0, 0, 1 | 4 | 20);
+                        }
+                        else
+                        {
+                            WindowFuncs.SetWindowPos(intPtr_p, -2, (int)output.X, (int)output.Y, 0, 0, 1 | 4 | 20);
+                        }
+                    }
+
+                }
+            }
+
+            var newRect = WindowFuncs.GetWindowRectangle(intPtr_p);
+            if (newRect.Size != userData.rect.Size && WindowPic.Source != null && this.RenderSize == WindowPic.RenderSize)
+            {
+                tumbler.SetBodyRectangle(intPtr_p, newRect);
+            }
+
             var pos = tumbler.WorldToProcessing(body.GetTransform().Position);
-            this.Left = pos.X;
-            this.Top = pos.Y;
+            WindowFuncs.SetWindowPos(this_intPtr, (int)intPtr_p, (int)pos.X, (int)pos.Y, 0, 0, 1 | 4 | 20);
+
+            this.RenderSize = WindowPic.RenderSize;
         }
 
         /*
@@ -352,6 +408,8 @@ namespace WindowDummy
             }
         }*/
 
+        #region 穿透模块
+
         [DllImport("gdi32.dll", SetLastError = true)]
         private static extern bool DeleteObject(IntPtr hObject);
         /// <summary>
@@ -372,7 +430,6 @@ namespace WindowDummy
             return wpfBitmap;
         }
 
-        #region 穿透模块
         /// <summary>
         /// 设置点击穿透到后面透明的窗口
         /// </summary>

@@ -10,6 +10,9 @@
         <Grid x:Name="ContentGrid">
             <Border BorderThickness="3" BorderBrush="Blue" Grid.ColumnSpan="2" Margin="0,0,0,0" />
             <Image x:Name="WindowPic" Margin="0,0,0,0" IsEnabled="False" Grid.ColumnSpan="2"/>
+
+            <Border x:Name="Border_Top" BorderThickness="3" BorderBrush="Red" Margin="0,0,0,0" Height="30" VerticalAlignment="Top" />
+
         </Grid>
     </Grid>
 </Window>

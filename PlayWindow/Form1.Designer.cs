@@ -38,6 +38,7 @@ namespace PlayWindow
             this.cb_intPtrFrom = new System.Windows.Forms.ComboBox();
             this.IntPtrListView = new System.Windows.Forms.ListView();
             this.IntPtrListView_WindowName = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.IntPtrListView_WindowIntPtrDummy = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.IntPtrListView_WindowIntPtr = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.IntPtrListView_WindowRect = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.btn_AddIntPtr = new System.Windows.Forms.Button();
@@ -54,6 +55,9 @@ namespace PlayWindow
             this.DEBUG_Engine_addImpulseX = new System.Windows.Forms.NumericUpDown();
             this.DEBUG_btn_manualGlobalUpdate = new System.Windows.Forms.Button();
             this.listRefreshTimer = new System.Windows.Forms.Timer(this.components);
+            this.DEBUG_tb_rotateBody = new System.Windows.Forms.TextBox();
+            this.DEBUG_btn_rotateBody = new System.Windows.Forms.Button();
+            this.DEBUG_Engine_rotateBody = new System.Windows.Forms.NumericUpDown();
             this.contentMenuStrip.SuspendLayout();
             this.tabPageMain.SuspendLayout();
             this.tabControlMain.SuspendLayout();
@@ -61,6 +65,7 @@ namespace PlayWindow
             this.DEBUG_Engine_groupBox.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.DEBUG_Engine_addImpulseY)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.DEBUG_Engine_addImpulseX)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.DEBUG_Engine_rotateBody)).BeginInit();
             this.SuspendLayout();
             // 
             // contentMenuStrip
@@ -129,13 +134,14 @@ namespace PlayWindow
             | System.Windows.Forms.AnchorStyles.Left)));
             this.IntPtrListView.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
             this.IntPtrListView_WindowName,
+            this.IntPtrListView_WindowIntPtrDummy,
             this.IntPtrListView_WindowIntPtr,
             this.IntPtrListView_WindowRect});
             this.IntPtrListView.GridLines = true;
             this.IntPtrListView.HideSelection = false;
             this.IntPtrListView.Location = new System.Drawing.Point(10, 34);
             this.IntPtrListView.Name = "IntPtrListView";
-            this.IntPtrListView.Size = new System.Drawing.Size(275, 316);
+            this.IntPtrListView.Size = new System.Drawing.Size(558, 316);
             this.IntPtrListView.TabIndex = 4;
             this.IntPtrListView.UseCompatibleStateImageBehavior = false;
             this.IntPtrListView.View = System.Windows.Forms.View.Details;
@@ -143,17 +149,22 @@ namespace PlayWindow
             // IntPtrListView_WindowName
             // 
             this.IntPtrListView_WindowName.Text = "窗口标题";
-            this.IntPtrListView_WindowName.Width = 104;
+            this.IntPtrListView_WindowName.Width = 150;
+            // 
+            // IntPtrListView_WindowIntPtrDummy
+            // 
+            this.IntPtrListView_WindowIntPtrDummy.Text = "Dummy句柄";
+            this.IntPtrListView_WindowIntPtrDummy.Width = 70;
             // 
             // IntPtrListView_WindowIntPtr
             // 
             this.IntPtrListView_WindowIntPtr.Text = "句柄";
-            this.IntPtrListView_WindowIntPtr.Width = 72;
+            this.IntPtrListView_WindowIntPtr.Width = 70;
             // 
             // IntPtrListView_WindowRect
             // 
             this.IntPtrListView_WindowRect.Text = "窗口矩形大小";
-            this.IntPtrListView_WindowRect.Width = 100;
+            this.IntPtrListView_WindowRect.Width = 220;
             // 
             // btn_AddIntPtr
             // 
@@ -220,6 +231,9 @@ namespace PlayWindow
             // 
             // DEBUG_Engine_groupBox
             // 
+            this.DEBUG_Engine_groupBox.Controls.Add(this.DEBUG_Engine_rotateBody);
+            this.DEBUG_Engine_groupBox.Controls.Add(this.DEBUG_tb_rotateBody);
+            this.DEBUG_Engine_groupBox.Controls.Add(this.DEBUG_btn_rotateBody);
             this.DEBUG_Engine_groupBox.Controls.Add(this.DEBUG_tb_addImpulse);
             this.DEBUG_Engine_groupBox.Controls.Add(this.DEBUG_btn_addImpulse);
             this.DEBUG_Engine_groupBox.Controls.Add(this.DEBUG_Engine_addImpulseLabel);
@@ -318,6 +332,46 @@ namespace PlayWindow
             // 
             this.listRefreshTimer.Interval = 200;
             // 
+            // DEBUG_tb_rotateBody
+            // 
+            this.DEBUG_tb_rotateBody.Location = new System.Drawing.Point(287, 49);
+            this.DEBUG_tb_rotateBody.Name = "DEBUG_tb_rotateBody";
+            this.DEBUG_tb_rotateBody.Size = new System.Drawing.Size(100, 21);
+            this.DEBUG_tb_rotateBody.TabIndex = 10;
+            // 
+            // DEBUG_btn_rotateBody
+            // 
+            this.DEBUG_btn_rotateBody.Location = new System.Drawing.Point(6, 48);
+            this.DEBUG_btn_rotateBody.Name = "DEBUG_btn_rotateBody";
+            this.DEBUG_btn_rotateBody.Size = new System.Drawing.Size(107, 23);
+            this.DEBUG_btn_rotateBody.TabIndex = 9;
+            this.DEBUG_btn_rotateBody.Text = "旋转";
+            this.DEBUG_btn_rotateBody.UseVisualStyleBackColor = true;
+            this.DEBUG_btn_rotateBody.Click += new System.EventHandler(this.DEBUG_btn_rotateBody_Click);
+            // 
+            // DEBUG_Engine_rotateBody
+            // 
+            this.DEBUG_Engine_rotateBody.DecimalPlaces = 3;
+            this.DEBUG_Engine_rotateBody.Increment = new decimal(new int[] {
+            10,
+            0,
+            0,
+            0});
+            this.DEBUG_Engine_rotateBody.Location = new System.Drawing.Point(119, 49);
+            this.DEBUG_Engine_rotateBody.Maximum = new decimal(new int[] {
+            2147483647,
+            0,
+            0,
+            0});
+            this.DEBUG_Engine_rotateBody.Minimum = new decimal(new int[] {
+            2147483647,
+            0,
+            0,
+            -2147483648});
+            this.DEBUG_Engine_rotateBody.Name = "DEBUG_Engine_rotateBody";
+            this.DEBUG_Engine_rotateBody.Size = new System.Drawing.Size(161, 21);
+            this.DEBUG_Engine_rotateBody.TabIndex = 11;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
@@ -339,6 +393,7 @@ namespace PlayWindow
             this.DEBUG_Engine_groupBox.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.DEBUG_Engine_addImpulseY)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.DEBUG_Engine_addImpulseX)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.DEBUG_Engine_rotateBody)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -370,6 +425,10 @@ namespace PlayWindow
         private System.Windows.Forms.Timer listRefreshTimer;
         private System.Windows.Forms.ComboBox cb_intPtrFrom;
         private System.Windows.Forms.Label cb_intPtrFromLabel;
+        private System.Windows.Forms.ColumnHeader IntPtrListView_WindowIntPtrDummy;
+        private System.Windows.Forms.TextBox DEBUG_tb_rotateBody;
+        private System.Windows.Forms.Button DEBUG_btn_rotateBody;
+        private System.Windows.Forms.NumericUpDown DEBUG_Engine_rotateBody;
     }
 }
 

@@ -9,14 +9,21 @@ using Box2DSharp.Dynamics.Joints;
 using WindowControl;
 using System.Runtime.InteropServices;
 using Rotate;
+using System.Drawing;
 
 namespace Box2DEngine
 {
+    public class UserData
+    {
+        public IntPtr intPtr_p;//根窗口的IntPtr
+        public IntPtr this_intPtr;//Dummy的IntPtr
+        public System.Drawing.Rectangle rect;//保存的的窗口矩形
+    }
+
     public class Tumbler
     {
         [DllImport("kernel32.dll")]
         static extern IntPtr GetConsoleWindow();
-        public List<IntPtr> windowDummyInstancesIntPtr;
 
         public World World;
         public Body body;
@@ -41,27 +48,29 @@ namespace Box2DEngine
 
         public Tumbler()
         {
-            World = new World();
-            World.Gravity = new Vector2(0.0f, -50.0f);
-            World.AllowSleep = true;
+            World = new World
+            {
+                Gravity = new Vector2(0.0f, -50.0f),
+                AllowSleep = true
+            };
 
             var h = Screen.PrimaryScreen.Bounds.Height;//获取含任务栏的屏幕大小
             var w = Screen.PrimaryScreen.Bounds.Width;
+            Vector2 offset = new Vector2(0, 0);
             //var w = SystemInformation.WorkingArea.Width;//获取不含任务栏的屏幕大小
             //var h = SystemInformation.WorkingArea.Height;
             var wallDef = new BodyDef();
             var wallBody = World.CreateBody(wallDef);
 
-            float wallLineOffset = 0;
             EdgeShape wallShape = new EdgeShape();
-            wallShape.SetTwoSided(new Vector2(0, 0 + wallLineOffset), new Vector2(w / PIXEL_TO_METER, 0 + wallLineOffset));
+            wallShape.SetTwoSided(new Vector2(offset.X, offset.Y), new Vector2(w / PIXEL_TO_METER + offset.X, offset.Y));
             wallBody.CreateFixture(wallShape, 0);//下
-            wallShape.SetTwoSided(new Vector2(0, h / PIXEL_TO_METER - wallLineOffset), new Vector2(w / PIXEL_TO_METER, h / PIXEL_TO_METER - wallLineOffset));
-            wallBody.CreateFixture(wallShape, 0);//上
-            wallShape.SetTwoSided(new Vector2(0 + wallLineOffset, h / PIXEL_TO_METER), new Vector2(0 + wallLineOffset, 0));
-            wallBody.CreateFixture(wallShape, 0);//左
-            wallShape.SetTwoSided(new Vector2(w / PIXEL_TO_METER - wallLineOffset, h / PIXEL_TO_METER), new Vector2(w / PIXEL_TO_METER - wallLineOffset, 0));
+            wallShape.SetTwoSided(new Vector2(w / PIXEL_TO_METER + offset.X, offset.Y), new Vector2(w / PIXEL_TO_METER + offset.X, h / PIXEL_TO_METER + offset.Y));
             wallBody.CreateFixture(wallShape, 0);//右
+            wallShape.SetTwoSided(new Vector2(w / PIXEL_TO_METER + offset.X, h / PIXEL_TO_METER + offset.Y), new Vector2(offset.X, h / PIXEL_TO_METER + offset.Y));
+            wallBody.CreateFixture(wallShape, 0);//上
+            wallShape.SetTwoSided(new Vector2(offset.X, h / PIXEL_TO_METER + offset.Y), new Vector2(offset.X, offset.Y));
+            wallBody.CreateFixture(wallShape, 0);//左
         }
 
         public void Step()
@@ -70,7 +79,7 @@ namespace Box2DEngine
             if (GetConsoleWindow() != IntPtr.Zero)
                 Console.Clear();
 
-            LinkedList<Body> _bodyList = World.BodyList;
+            /*LinkedList<Body> _bodyList = World.BodyList;
             Body[] _ = new Body[_bodyList.Count];
             _bodyList.CopyTo(_, 0);
             foreach (Body body in _)
@@ -88,37 +97,34 @@ namespace Box2DEngine
                         }
                         else
                         {
-                            mPoint p1 = ProcessingToWorld(new Vector2(OtherFuncs.pointDelta.X, OtherFuncs.pointDelta.Y));
+                            mPoint p1 = ProcessingToWorld(new Vector2(OtherFuncs.pointDelta.X, OtherFuncs.pointDelta.Y));//世界坐标的p1
                             var area = WindowFuncs.GetWindowRectangle((IntPtr)body.UserData);
                             if (OtherFuncs.pointDelta.X > area.Left && OtherFuncs.pointDelta.X < area.Right && OtherFuncs.pointDelta.Y > area.Top && OtherFuncs.pointDelta.Y < area.Bottom)
                             {
-                                Console.WriteLine("True!!1");
-                                mPoint p2 = WorldToProcessing(new Vector2(body.GetPosition().X, body.GetPosition().Y));
+                                mPoint p2 = body.GetPosition();//世界坐标的p2
                                 Rotate.Rotate.RotateAngle(p1, p2, body.GetAngle() * (180 / Math.PI) % 360, out mPoint p3);
-                                p3 = WorldToProcessing(new Vector2((float)p3.X, (float)p3.X));
+                                //p3 = WorldToProcessing(new Vector2((float)p3.X, (float)p3.Y));
                                 WindowFuncs.SetWindowPos((IntPtr)body.UserData, -2, (int)((int)output.X + (p1.X - p3.X)), (int)((int)output.Y + (p1.Y - p3.Y)), 0, 0, 1 | 4);
                             }
                             else
                             {
                                 WindowFuncs.SetWindowPos((IntPtr)body.UserData, -2, (int)output.X, (int)output.Y, 0, 0, 1 | 4);
-
-                                Console.WriteLine("False!!1");
                             }
                         }
                     }
                 }
-            }
+            }*/
 
             GlobalEvent.Register.UpdateEventAction();
         }
 
-        public void AddBody(IntPtr intPtr)
+        public void AddBody(IntPtr intPtr, Vector2 targetPos = new Vector2(), object UserData = null)
         {
-            System.Drawing.Rectangle rect = WindowFuncs.GetWindowRectangle(intPtr);
+            Rectangle rect = WindowFuncs.GetWindowRectangle(intPtr);
             BodyDef bodyDef = new BodyDef
             {
                 BodyType = BodyType.DynamicBody,
-                Position = new Vector2(10.0f, 10.0f)
+                Position = ProcessingToWorld(targetPos)
             };
             PolygonShape shape = new PolygonShape();
             FixtureDef fixtureDef = new FixtureDef
@@ -132,39 +138,37 @@ namespace Box2DEngine
             body = World.CreateBody(bodyDef);
             body.CreateFixture(fixtureDef);
             body.BodyType = BodyType.DynamicBody;
-            body.UserData = intPtr;
+            body.UserData = UserData;
             body.SetTransform(new Vector2(rect.X / PIXEL_TO_METER, rect.Y / PIXEL_TO_METER), 0);
         }
 
         public void AddImpulse(IntPtr target, Vector2 impulse)
         {
-            foreach (Body body in World.BodyList)
+            Body body = GetBody(target);
+            if (body.UserData != null)
             {
-                if (body.UserData != null)
+                UserData userData = body.UserData as UserData;
+                if (userData.intPtr_p == target)
                 {
-                    if (body.UserData.GetType() == typeof(IntPtr))
-                    {
-                        if ((IntPtr)body.UserData == target)
-                        {
-                            //body.ApplyLinearImpulse(Impulse, null, true);
-                            body.ApplyLinearImpulseToCenter(impulse, true);
-                        }
-                    }
+                    //body.ApplyLinearImpulse(Impulse, null, true);
+                    body.ApplyLinearImpulseToCenter(impulse, true);
+
                 }
             }
+
         }
         public void RotateBody(IntPtr intPtr, float angle)
         {
-            foreach (Body body in World.BodyList)
+            Body body = GetBody(intPtr);
+            if (body.UserData != null)
             {
-                if (body.UserData != null)
+                UserData userData = body.UserData as UserData;
+                if (userData.intPtr_p == intPtr)
                 {
-                    if ((IntPtr)body.UserData == intPtr)
-                    {
-                        body.GetTransform().Rotation.Set((float)(-(((-body.GetAngle()) * 180.0f / Math.PI) + angle) / (Math.PI * 180)));
-                    }
+                    body.GetTransform().Rotation.Set((float)(-(((-body.GetAngle()) * 180.0f / Math.PI) + angle) / (Math.PI * 180)));
                 }
             }
+
         }
 
         public Body GetBody(IntPtr intPtr)
@@ -173,7 +177,8 @@ namespace Box2DEngine
             {
                 if (body.UserData != null)
                 {
-                    if ((IntPtr)body.UserData == intPtr)
+                    UserData userData = body.UserData as UserData;
+                    if (userData.intPtr_p == intPtr)
                     {
                         return body;
                     }
@@ -183,14 +188,41 @@ namespace Box2DEngine
             }
             return null;
         }
-
-        public Vector2 WorldToProcessing(Vector2 input)
+        public Rectangle GetBodyRectangle(IntPtr intPtr)
         {
-            return new Vector2(input.X * PIXEL_TO_METER, Screen.PrimaryScreen.Bounds.Height - (input.Y * PIXEL_TO_METER));
+
+            Body body = GetBody(intPtr);
+            if (body.UserData != null)
+            {
+                UserData userData = body.UserData as UserData;
+                if (userData.intPtr_p == intPtr)
+                {
+                    return userData.rect;
+                }
+            }
+            return new Rectangle(999999, 999999, 999999, 999999);
         }
+        public bool SetBodyRectangle(IntPtr intPtr, Rectangle rect)
+        {
+            Body body = GetBody(intPtr);
+            if (body.UserData != null)
+            {
+                UserData userData = body.UserData as UserData;
+                PolygonShape fixture = body.FixtureList[0].Shape as PolygonShape;
+                fixture.SetAsBox(rect.Width / 2 / PIXEL_TO_METER, rect.Height / 2 / PIXEL_TO_METER);
+                userData.rect = rect;
+                return true;
+            }
+            return false;
+        }
+
         public Vector2 ProcessingToWorld(Vector2 input)
         {
-            return new Vector2(input.X / PIXEL_TO_METER, (Screen.PrimaryScreen.Bounds.Height - input.Y) / PIXEL_TO_METER);
+            return new Vector2(input.X / PIXEL_TO_METER, (-input.Y + Screen.PrimaryScreen.Bounds.Height) / PIXEL_TO_METER);
+        }
+        public Vector2 WorldToProcessing(Vector2 input)
+        {
+            return new Vector2(input.X * PIXEL_TO_METER, -(input.Y * PIXEL_TO_METER - Screen.PrimaryScreen.Bounds.Height));
         }
     }
 }
