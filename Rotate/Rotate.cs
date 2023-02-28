@@ -61,30 +61,31 @@ namespace Rotate
             C.X = (g * b - c * f) / (e * b - a * f);
             C.Y = (a * g - c * e) / (a * f - b * e);
             C.R = Math.Sqrt((C.X - x1) * (C.X - x1) + (C.Y - y1) * (C.Y - y1));
+
         }
 
         /// <summary>
-        /// 计算坐标以圆心旋转后坐标
+        /// 计算坐标1以坐标2为中心旋转后坐标
         /// </summary>
+        /// <param name="centrePoint">中心点</param>
         /// <param name="p1">坐标</param>
         /// <param name="Angle">旋转角度</param>
-        /// <param name="p2">圆心</param>
-        /// <param name="p3">旋转后坐标</param>
+        /// <param name="p2">旋转后坐标</param>
         /// <returns>运行状态</returns>
-        public static string RotateAngle(mPoint p1, mPoint p2, double Angle, out mPoint p3)
+        public static string RotateAngle(mPoint centrePoint, mPoint p1, double Angle, out mPoint p2)
         {
             try
             {
                 double Rad = 0;
                 Rad = Angle * Math.Acos(-1) / 180;
-                p3.X = (p2.X - p1.X) * Math.Cos(Rad) - (p2.Y - p1.Y) * Math.Sin(Rad) + p1.X;
-                p3.Y = (p2.Y - p1.Y) * Math.Cos(Rad) + (p2.X - p1.X) * Math.Sin(Rad) + p1.Y;
+                p2.X = (p1.X - centrePoint.X) * Math.Cos(Rad) - (p1.Y - centrePoint.Y) * Math.Sin(Rad) + centrePoint.X;
+                p2.Y = (p1.Y - centrePoint.Y) * Math.Cos(Rad) + (p1.X - centrePoint.X) * Math.Sin(Rad) + centrePoint.Y;
                 return "OK";
             }
             catch (Exception ex)
             {
-                p3.X = 999999;
-                p3.Y = 999999;
+                p2.X = 999999;
+                p2.Y = 999999;
                 return ex.Message;
             }
         }

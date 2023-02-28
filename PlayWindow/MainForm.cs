@@ -14,7 +14,7 @@ using WindowControl;
 
 namespace PlayWindow
 {
-    public partial class Form1 : Form
+    public partial class MainForm : Form
     {
         public Configuration config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
         public ConnectionStringsSection csSection;
@@ -26,7 +26,7 @@ namespace PlayWindow
         public MouseHook.MouseHook mh;//钩子实例
         public WindowDummyCenter WDC = new WindowDummyCenter();
 
-        public Form1()
+        public MainForm()
         {
             InitializeComponent();
             Start();
@@ -68,42 +68,6 @@ namespace PlayWindow
             IntPtrTextBox.Focus();
         }
 
-        #region UI事件
-        private void cb_isRotate_CheckedChanged(object sender, EventArgs e)
-        {
-            isRotate = cb_isRotate.Checked;
-            csSection.ConnectionStrings["isRotate"].ConnectionString = Convert.ToString(cb_isRotate.Checked);
-            config.Save();
-            ConfigurationManager.RefreshSection("ConnectionStrings");
-        }
-        private void cb_intPtrFrom_SelectionChangeCommitted(object sender, EventArgs e)
-        {
-            switch (cb_intPtrFrom.SelectedIndex)
-            {
-                case 0:
-                    csSection.ConnectionStrings["fromIntPtr"].ConnectionString = "fromWindow";
-                    break;
-                case 1:
-                    csSection.ConnectionStrings["fromIntPtr"].ConnectionString = "fromWD";
-                    break;
-            }
-            config.Save();
-            ConfigurationManager.RefreshSection("ConnectionStrings");
-            cb_intPtrFromLabel.Text = "重启生效";
-        }
-        private void btn_AddIntPtr_Click(object sender, EventArgs e)
-        {
-            if (WDC.NewDummy((IntPtr)Convert.ToInt64(IntPtrTextBox.Text)))
-            {
-                IntPtrLabel.Text = "窗口句柄";
-            }
-            else
-            {
-                IntPtrLabel.Text = "请输入有效的IntPtr";
-            }
-        }
-        #endregion
-
         private void UpdateEvent(object sender, EventArgs e)
         {
             IntPtrListView.Items.Clear();
@@ -132,11 +96,56 @@ namespace PlayWindow
                 IntPtrListView.Items.Add(item);
             }
         }
-        private void Form1_FormClosed(object sender, FormClosedEventArgs e)
+        private void MainForm_FormClosed(object sender, FormClosedEventArgs e)
         {
             WDC.engine.Stop();
             mh.UnHook();
         }
+
+        #region UI事件
+        private void cb_isRotate_CheckedChanged(object sender, EventArgs e)
+        {
+            isRotate = cb_isRotate.Checked;
+            csSection.ConnectionStrings["isRotate"].ConnectionString = Convert.ToString(cb_isRotate.Checked);
+            config.Save();
+            ConfigurationManager.RefreshSection("ConnectionStrings");
+        }
+
+        private void cb_intPtrFrom_SelectionChangeCommitted(object sender, EventArgs e)
+        {
+            switch (cb_intPtrFrom.SelectedIndex)
+            {
+                case 0:
+                    csSection.ConnectionStrings["fromIntPtr"].ConnectionString = "fromWindow";
+                    break;
+                case 1:
+                    csSection.ConnectionStrings["fromIntPtr"].ConnectionString = "fromWD";
+                    break;
+            }
+            config.Save();
+            ConfigurationManager.RefreshSection("ConnectionStrings");
+            cb_intPtrFromLabel.Text = "重启生效";
+        }
+
+        private void btn_AddIntPtr_Click(object sender, EventArgs e)
+        {
+            if (WDC.NewDummy((IntPtr)Convert.ToInt64(IntPtrTextBox.Text)))
+            {
+                IntPtrLabel.Text = "窗口句柄";
+            }
+            else
+            {
+                IntPtrLabel.Text = "请输入有效的IntPtr";
+            }
+        }
+
+        private void 帮助_关于ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            AboutForm aboutForm = new AboutForm();
+            aboutForm.ShowDialog();
+        }
+
+        #endregion
 
         #region Debug stuff
 

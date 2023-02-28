@@ -1,7 +1,7 @@
 ﻿
 namespace PlayWindow
 {
-    partial class Form1
+    partial class MainForm
     {
         /// <summary>
         /// 必需的设计器变量。
@@ -31,7 +31,9 @@ namespace PlayWindow
         {
             this.components = new System.ComponentModel.Container();
             this.contentMenuStrip = new System.Windows.Forms.MenuStrip();
-            this.menuMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.菜单ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.帮助ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.帮助_关于ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.notifyIcon1 = new System.Windows.Forms.NotifyIcon(this.components);
             this.tabPageMain = new System.Windows.Forms.TabPage();
             this.cb_intPtrFromLabel = new System.Windows.Forms.Label();
@@ -48,6 +50,9 @@ namespace PlayWindow
             this.tabControlMain = new System.Windows.Forms.TabControl();
             this.tabPageDebug = new System.Windows.Forms.TabPage();
             this.DEBUG_Engine_groupBox = new System.Windows.Forms.GroupBox();
+            this.DEBUG_Engine_rotateBody = new System.Windows.Forms.NumericUpDown();
+            this.DEBUG_tb_rotateBody = new System.Windows.Forms.TextBox();
+            this.DEBUG_btn_rotateBody = new System.Windows.Forms.Button();
             this.DEBUG_tb_addImpulse = new System.Windows.Forms.TextBox();
             this.DEBUG_btn_addImpulse = new System.Windows.Forms.Button();
             this.DEBUG_Engine_addImpulseLabel = new System.Windows.Forms.Label();
@@ -55,33 +60,46 @@ namespace PlayWindow
             this.DEBUG_Engine_addImpulseX = new System.Windows.Forms.NumericUpDown();
             this.DEBUG_btn_manualGlobalUpdate = new System.Windows.Forms.Button();
             this.listRefreshTimer = new System.Windows.Forms.Timer(this.components);
-            this.DEBUG_tb_rotateBody = new System.Windows.Forms.TextBox();
-            this.DEBUG_btn_rotateBody = new System.Windows.Forms.Button();
-            this.DEBUG_Engine_rotateBody = new System.Windows.Forms.NumericUpDown();
             this.contentMenuStrip.SuspendLayout();
             this.tabPageMain.SuspendLayout();
             this.tabControlMain.SuspendLayout();
             this.tabPageDebug.SuspendLayout();
             this.DEBUG_Engine_groupBox.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.DEBUG_Engine_rotateBody)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.DEBUG_Engine_addImpulseY)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.DEBUG_Engine_addImpulseX)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.DEBUG_Engine_rotateBody)).BeginInit();
             this.SuspendLayout();
             // 
             // contentMenuStrip
             // 
             this.contentMenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.menuMenuItem});
+            this.菜单ToolStripMenuItem,
+            this.帮助ToolStripMenuItem});
             this.contentMenuStrip.Location = new System.Drawing.Point(0, 0);
             this.contentMenuStrip.Name = "contentMenuStrip";
             this.contentMenuStrip.Size = new System.Drawing.Size(584, 25);
             this.contentMenuStrip.TabIndex = 0;
             // 
-            // menuMenuItem
+            // 菜单ToolStripMenuItem
             // 
-            this.menuMenuItem.Name = "menuMenuItem";
-            this.menuMenuItem.Size = new System.Drawing.Size(64, 21);
-            this.menuMenuItem.Text = "菜单(&M)";
+            this.菜单ToolStripMenuItem.Name = "菜单ToolStripMenuItem";
+            this.菜单ToolStripMenuItem.Size = new System.Drawing.Size(64, 21);
+            this.菜单ToolStripMenuItem.Text = "菜单(&M)";
+            // 
+            // 帮助ToolStripMenuItem
+            // 
+            this.帮助ToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.帮助_关于ToolStripMenuItem});
+            this.帮助ToolStripMenuItem.Name = "帮助ToolStripMenuItem";
+            this.帮助ToolStripMenuItem.Size = new System.Drawing.Size(61, 21);
+            this.帮助ToolStripMenuItem.Text = "帮助(&H)";
+            // 
+            // 帮助_关于ToolStripMenuItem
+            // 
+            this.帮助_关于ToolStripMenuItem.Name = "帮助_关于ToolStripMenuItem";
+            this.帮助_关于ToolStripMenuItem.Size = new System.Drawing.Size(116, 22);
+            this.帮助_关于ToolStripMenuItem.Text = "关于(&A)";
+            this.帮助_关于ToolStripMenuItem.Click += new System.EventHandler(this.帮助_关于ToolStripMenuItem_Click);
             // 
             // notifyIcon1
             // 
@@ -246,6 +264,46 @@ namespace PlayWindow
             this.DEBUG_Engine_groupBox.TabStop = false;
             this.DEBUG_Engine_groupBox.Text = "Engine";
             // 
+            // DEBUG_Engine_rotateBody
+            // 
+            this.DEBUG_Engine_rotateBody.DecimalPlaces = 3;
+            this.DEBUG_Engine_rotateBody.Increment = new decimal(new int[] {
+            10,
+            0,
+            0,
+            0});
+            this.DEBUG_Engine_rotateBody.Location = new System.Drawing.Point(119, 49);
+            this.DEBUG_Engine_rotateBody.Maximum = new decimal(new int[] {
+            2147483647,
+            0,
+            0,
+            0});
+            this.DEBUG_Engine_rotateBody.Minimum = new decimal(new int[] {
+            2147483647,
+            0,
+            0,
+            -2147483648});
+            this.DEBUG_Engine_rotateBody.Name = "DEBUG_Engine_rotateBody";
+            this.DEBUG_Engine_rotateBody.Size = new System.Drawing.Size(161, 21);
+            this.DEBUG_Engine_rotateBody.TabIndex = 11;
+            // 
+            // DEBUG_tb_rotateBody
+            // 
+            this.DEBUG_tb_rotateBody.Location = new System.Drawing.Point(287, 49);
+            this.DEBUG_tb_rotateBody.Name = "DEBUG_tb_rotateBody";
+            this.DEBUG_tb_rotateBody.Size = new System.Drawing.Size(100, 21);
+            this.DEBUG_tb_rotateBody.TabIndex = 10;
+            // 
+            // DEBUG_btn_rotateBody
+            // 
+            this.DEBUG_btn_rotateBody.Location = new System.Drawing.Point(6, 48);
+            this.DEBUG_btn_rotateBody.Name = "DEBUG_btn_rotateBody";
+            this.DEBUG_btn_rotateBody.Size = new System.Drawing.Size(107, 23);
+            this.DEBUG_btn_rotateBody.TabIndex = 9;
+            this.DEBUG_btn_rotateBody.Text = "设置角度";
+            this.DEBUG_btn_rotateBody.UseVisualStyleBackColor = true;
+            this.DEBUG_btn_rotateBody.Click += new System.EventHandler(this.DEBUG_btn_rotateBody_Click);
+            // 
             // DEBUG_tb_addImpulse
             // 
             this.DEBUG_tb_addImpulse.Location = new System.Drawing.Point(287, 21);
@@ -332,47 +390,7 @@ namespace PlayWindow
             // 
             this.listRefreshTimer.Interval = 200;
             // 
-            // DEBUG_tb_rotateBody
-            // 
-            this.DEBUG_tb_rotateBody.Location = new System.Drawing.Point(287, 49);
-            this.DEBUG_tb_rotateBody.Name = "DEBUG_tb_rotateBody";
-            this.DEBUG_tb_rotateBody.Size = new System.Drawing.Size(100, 21);
-            this.DEBUG_tb_rotateBody.TabIndex = 10;
-            // 
-            // DEBUG_btn_rotateBody
-            // 
-            this.DEBUG_btn_rotateBody.Location = new System.Drawing.Point(6, 48);
-            this.DEBUG_btn_rotateBody.Name = "DEBUG_btn_rotateBody";
-            this.DEBUG_btn_rotateBody.Size = new System.Drawing.Size(107, 23);
-            this.DEBUG_btn_rotateBody.TabIndex = 9;
-            this.DEBUG_btn_rotateBody.Text = "旋转";
-            this.DEBUG_btn_rotateBody.UseVisualStyleBackColor = true;
-            this.DEBUG_btn_rotateBody.Click += new System.EventHandler(this.DEBUG_btn_rotateBody_Click);
-            // 
-            // DEBUG_Engine_rotateBody
-            // 
-            this.DEBUG_Engine_rotateBody.DecimalPlaces = 3;
-            this.DEBUG_Engine_rotateBody.Increment = new decimal(new int[] {
-            10,
-            0,
-            0,
-            0});
-            this.DEBUG_Engine_rotateBody.Location = new System.Drawing.Point(119, 49);
-            this.DEBUG_Engine_rotateBody.Maximum = new decimal(new int[] {
-            2147483647,
-            0,
-            0,
-            0});
-            this.DEBUG_Engine_rotateBody.Minimum = new decimal(new int[] {
-            2147483647,
-            0,
-            0,
-            -2147483648});
-            this.DEBUG_Engine_rotateBody.Name = "DEBUG_Engine_rotateBody";
-            this.DEBUG_Engine_rotateBody.Size = new System.Drawing.Size(161, 21);
-            this.DEBUG_Engine_rotateBody.TabIndex = 11;
-            // 
-            // Form1
+            // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -380,9 +398,9 @@ namespace PlayWindow
             this.Controls.Add(this.tabControlMain);
             this.Controls.Add(this.contentMenuStrip);
             this.MainMenuStrip = this.contentMenuStrip;
-            this.Name = "Form1";
+            this.Name = "MainForm";
             this.Text = "Form1";
-            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.Form1_FormClosed);
+            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.MainForm_FormClosed);
             this.contentMenuStrip.ResumeLayout(false);
             this.contentMenuStrip.PerformLayout();
             this.tabPageMain.ResumeLayout(false);
@@ -391,9 +409,9 @@ namespace PlayWindow
             this.tabPageDebug.ResumeLayout(false);
             this.DEBUG_Engine_groupBox.ResumeLayout(false);
             this.DEBUG_Engine_groupBox.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.DEBUG_Engine_rotateBody)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.DEBUG_Engine_addImpulseY)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.DEBUG_Engine_addImpulseX)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.DEBUG_Engine_rotateBody)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -402,7 +420,7 @@ namespace PlayWindow
         #endregion
 
         private System.Windows.Forms.MenuStrip contentMenuStrip;
-        private System.Windows.Forms.ToolStripMenuItem menuMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem 菜单ToolStripMenuItem;
         private System.Windows.Forms.NotifyIcon notifyIcon1;
         private System.Windows.Forms.TabPage tabPageMain;
         private System.Windows.Forms.TabControl tabControlMain;
@@ -429,6 +447,8 @@ namespace PlayWindow
         private System.Windows.Forms.TextBox DEBUG_tb_rotateBody;
         private System.Windows.Forms.Button DEBUG_btn_rotateBody;
         private System.Windows.Forms.NumericUpDown DEBUG_Engine_rotateBody;
+        private System.Windows.Forms.ToolStripMenuItem 帮助ToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem 帮助_关于ToolStripMenuItem;
     }
 }
 

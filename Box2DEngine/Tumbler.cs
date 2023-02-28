@@ -145,7 +145,7 @@ namespace Box2DEngine
         public void AddImpulse(IntPtr target, Vector2 impulse)
         {
             Body body = GetBody(target);
-            if (body.UserData != null)
+            if (body != null && body.UserData != null)
             {
                 UserData userData = body.UserData as UserData;
                 if (userData.intPtr_p == target)
@@ -160,12 +160,12 @@ namespace Box2DEngine
         public void RotateBody(IntPtr intPtr, float angle)
         {
             Body body = GetBody(intPtr);
-            if (body.UserData != null)
+            if (body != null && body.UserData != null)
             {
                 UserData userData = body.UserData as UserData;
                 if (userData.intPtr_p == intPtr)
                 {
-                    body.GetTransform().Rotation.Set((float)(-(((-body.GetAngle()) * 180.0f / Math.PI) + angle) / (Math.PI * 180)));
+                    body.SetTransform(body.GetTransform().Position, (float)(angle * Math.Acos(-1) / 180));
                 }
             }
 
@@ -175,7 +175,7 @@ namespace Box2DEngine
         {
             foreach (Body body in World.BodyList)
             {
-                if (body.UserData != null)
+                if (body != null && body.UserData != null)
                 {
                     UserData userData = body.UserData as UserData;
                     if (userData.intPtr_p == intPtr)
@@ -192,7 +192,7 @@ namespace Box2DEngine
         {
 
             Body body = GetBody(intPtr);
-            if (body.UserData != null)
+            if (body != null && body.UserData != null)
             {
                 UserData userData = body.UserData as UserData;
                 if (userData.intPtr_p == intPtr)
@@ -205,7 +205,7 @@ namespace Box2DEngine
         public bool SetBodyRectangle(IntPtr intPtr, Rectangle rect)
         {
             Body body = GetBody(intPtr);
-            if (body.UserData != null)
+            if (body != null && body.UserData != null)
             {
                 UserData userData = body.UserData as UserData;
                 PolygonShape fixture = body.FixtureList[0].Shape as PolygonShape;

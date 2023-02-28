@@ -33,7 +33,7 @@ namespace WindowDummy
         public IntPtr intPtr_p;//根窗口的IntPtr
         public IntPtr this_intPtr;//Dummy的IntPtr
         public System.Drawing.Rectangle p_Rectangle;
-        public System.Drawing.Rectangle clientRectangle;
+        public System.Drawing.Rectangle this_Rectangle;
         public System.Drawing.Bitmap srcImage = null;
         public Tumbler tumbler;
         public Body body;
@@ -135,14 +135,6 @@ namespace WindowDummy
             this.Top = p_Rectangle.Location.X;
             this.Left = p_Rectangle.Location.Y;
 
-            //第七步：监测鼠标移动窗口
-            var point_p = new System.Drawing.Point();
-
-            WindowFuncs.ClientToScreen(intPtr_p, ref point_p);
-            clientRectangle = new System.Drawing.Rectangle(point_p.X - p_Rectangle.X, point_p.Y - p_Rectangle.Y, p_Rectangle.Width, p_Rectangle.Height);
-
-            //Console.WriteLine(clientRectangle);
-
             //第八步：监测窗口大小更新
 
             UpdateTimer.Start();
@@ -200,7 +192,7 @@ namespace WindowDummy
             _bodyList.CopyTo(_, 0);
             foreach (Body body in _)
             {
-                if (body.UserData != null)
+                if (body != null && body.UserData != null)
                 {
                     userData = body.UserData as UserData;
                     var output = tumbler.WorldToProcessing(body.GetTransform().Position);
@@ -212,13 +204,12 @@ namespace WindowDummy
                     }
                     else
                     {
-                        mPoint p1 = tumbler.ProcessingToWorld(new Vector2(OtherFuncs.pointDelta.X, OtherFuncs.pointDelta.Y));//世界坐标的p1
                         var area = WindowFuncs.GetWindowRectangle(this_intPtr);
                         if (OtherFuncs.pointDelta.X > area.Left && OtherFuncs.pointDelta.X < area.Right && OtherFuncs.pointDelta.Y > area.Top && OtherFuncs.pointDelta.Y < area.Bottom)
                         {
-                            mPoint p2 = body.GetPosition();//世界坐标的p2
-                            Rotate.Rotate.RotateAngle(p1, p2, body.GetAngle() * (180 / Math.PI) % 360, out mPoint p3);
-                            //p3 = WorldToProcessing(new Vector2((float)p3.X, (float)p3.Y));
+                            mPoint p1 = OtherFuncs.pointDelta;
+                            mPoint centrePoint = new mPoint() { X = area.X + area.Width / 2, Y = area.Y + area.Height / 2 };
+                            Rotate.Rotate.RotateAngle(centrePoint, p1, -(body.GetAngle() * (180 / Math.PI) % 360), out mPoint p3);
                             WindowFuncs.SetWindowPos(intPtr_p, -2, (int)((int)output.X + (p1.X - p3.X)), (int)((int)output.Y + (p1.Y - p3.Y)), 0, 0, 1 | 4 | 20);
                         }
                         else
@@ -239,7 +230,10 @@ namespace WindowDummy
             var pos = tumbler.WorldToProcessing(body.GetTransform().Position);
             WindowFuncs.SetWindowPos(this_intPtr, (int)intPtr_p, (int)pos.X, (int)pos.Y, 0, 0, 1 | 4 | 20);
 
+            //AfterAll
             this.RenderSize = WindowPic.RenderSize;
+            this_Rectangle = WindowFuncs.GetWindowRectangle(this_intPtr);
+
         }
 
         /*
