@@ -1,22 +1,13 @@
 ﻿using Box2DSharp.Dynamics;
 using Rotate;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Numerics;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using System.Windows.Shell;
 using System.Windows.Threading;
 using WindowControl;
@@ -108,7 +99,7 @@ namespace WindowDummy
             //第零步：初始化参数
             UpdateTimer.Tick += UpdateEvent;
             intPtr_p = WindowFuncs.GetRoot(intPtr);
-            intPtr = GetWindowHwndSource(this);
+            this.Title = intPtr_p.ToString();
             this_intPtr = GetWindowHwndSource(this);
             var rect = WindowFuncs.GetWindowRectangle(intPtr_p);
             UserData userData = new UserData()
@@ -186,38 +177,25 @@ namespace WindowDummy
             ContentGrid.RenderTransform = rt;
 
             //移动
-            var userData = body.UserData as UserData;
-            LinkedList<Body> _bodyList = tumbler.World.BodyList;
-            Body[] _ = new Body[_bodyList.Count];
-            _bodyList.CopyTo(_, 0);
-            foreach (Body body in _)
+            UserData userData = body.UserData as UserData;
+            var output = tumbler.WorldToProcessing(body.GetTransform().Position);
+            if (OtherFuncs.IsDraging(userData.intPtr_p))
             {
-                if (body != null && body.UserData != null)
+                body.ApplyLinearImpulseToCenter(new Vector2(OtherFuncs.pointDelta.X, OtherFuncs.pointDelta.Y), true);
+            }
+            else
+            {
+                var area = WindowFuncs.GetWindowRectangle(this_intPtr);
+                if (OtherFuncs.pointDelta.X > area.Left && OtherFuncs.pointDelta.X < area.Right && OtherFuncs.pointDelta.Y > area.Top && OtherFuncs.pointDelta.Y < area.Bottom)
                 {
-                    userData = body.UserData as UserData;
-                    var output = tumbler.WorldToProcessing(body.GetTransform().Position);
-                    if (OtherFuncs.IsDraging(userData.intPtr_p))
-                    {
-                        //body.SetTransform(new Vector2(WindowFuncs.GetClientRectangle((IntPtr)body.UserData).X / PIXEL_TO_METER, WindowFuncs.GetClientRectangle((IntPtr)body.UserData).Y / PIXEL_TO_METER), body.GetTransform().Rotation.Angle);
-                        body.ApplyLinearImpulseToCenter(new Vector2(OtherFuncs.pointDelta.X, OtherFuncs.pointDelta.Y), true);
-                        //WindowFuncs.SetWindowPos((IntPtr)body.UserData, -2, (int)output.X, (int)output.Y, 0, 0, 1 | 4);
-                    }
-                    else
-                    {
-                        var area = WindowFuncs.GetWindowRectangle(this_intPtr);
-                        if (OtherFuncs.pointDelta.X > area.Left && OtherFuncs.pointDelta.X < area.Right && OtherFuncs.pointDelta.Y > area.Top && OtherFuncs.pointDelta.Y < area.Bottom)
-                        {
-                            mPoint p1 = OtherFuncs.pointDelta;
-                            mPoint centrePoint = new mPoint() { X = area.X + area.Width / 2, Y = area.Y + area.Height / 2 };
-                            Rotate.Rotate.RotateAngle(centrePoint, p1, -(body.GetAngle() * (180 / Math.PI) % 360), out mPoint p3);
-                            WindowFuncs.SetWindowPos(intPtr_p, -2, (int)((int)output.X + (p1.X - p3.X)), (int)((int)output.Y + (p1.Y - p3.Y)), 0, 0, 1 | 4 | 20);
-                        }
-                        else
-                        {
-                            WindowFuncs.SetWindowPos(intPtr_p, -2, (int)output.X, (int)output.Y, 0, 0, 1 | 4 | 20);
-                        }
-                    }
-
+                    mPoint p1 = OtherFuncs.pointDelta;
+                    mPoint centrePoint = new mPoint() { X = area.X + area.Width / 2, Y = area.Y + area.Height / 2 };
+                    Rotate.Rotate.RotateAngle(centrePoint, p1, body.GetAngle() * (180 / Math.PI) % 360, out mPoint p3);
+                    WindowFuncs.SetWindowPos(intPtr_p, -2, (int)((int)output.X + (p1.X - p3.X)), (int)((int)output.Y + (p1.Y - p3.Y)), 0, 0, 1 | 4 | 20);
+                }
+                else
+                {
+                    WindowFuncs.SetWindowPos(intPtr_p, -2, (int)output.X, (int)output.Y, 0, 0, 1 | 4 | 20);
                 }
             }
 

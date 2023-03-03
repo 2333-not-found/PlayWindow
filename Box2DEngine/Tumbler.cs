@@ -1,14 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Numerics;
 using System.Windows.Forms;
 using Box2DSharp.Collision.Shapes;
-using Box2DSharp.Common;
 using Box2DSharp.Dynamics;
-using Box2DSharp.Dynamics.Joints;
 using WindowControl;
 using System.Runtime.InteropServices;
-using Rotate;
 using System.Drawing;
 
 namespace Box2DEngine
@@ -78,42 +74,6 @@ namespace Box2DEngine
             World.Step(1 / 60f, 8, 3);
             if (GetConsoleWindow() != IntPtr.Zero)
                 Console.Clear();
-
-            /*LinkedList<Body> _bodyList = World.BodyList;
-            Body[] _ = new Body[_bodyList.Count];
-            _bodyList.CopyTo(_, 0);
-            foreach (Body body in _)
-            {
-                if (body.UserData != null)
-                {
-                    if (body.UserData.GetType() == typeof(IntPtr))
-                    {
-                        var output = WorldToProcessing(body.GetTransform().Position);
-                        if (OtherFuncs.IsDraging((IntPtr)body.UserData))
-                        {
-                            //body.SetTransform(new Vector2(WindowFuncs.GetClientRectangle((IntPtr)body.UserData).X / PIXEL_TO_METER, WindowFuncs.GetClientRectangle((IntPtr)body.UserData).Y / PIXEL_TO_METER), body.GetTransform().Rotation.Angle);
-                            body.ApplyLinearImpulseToCenter(new Vector2(OtherFuncs.pointDelta.X, OtherFuncs.pointDelta.Y), true);
-                            //WindowFuncs.SetWindowPos((IntPtr)body.UserData, -2, (int)output.X, (int)output.Y, 0, 0, 1 | 4);
-                        }
-                        else
-                        {
-                            mPoint p1 = ProcessingToWorld(new Vector2(OtherFuncs.pointDelta.X, OtherFuncs.pointDelta.Y));//世界坐标的p1
-                            var area = WindowFuncs.GetWindowRectangle((IntPtr)body.UserData);
-                            if (OtherFuncs.pointDelta.X > area.Left && OtherFuncs.pointDelta.X < area.Right && OtherFuncs.pointDelta.Y > area.Top && OtherFuncs.pointDelta.Y < area.Bottom)
-                            {
-                                mPoint p2 = body.GetPosition();//世界坐标的p2
-                                Rotate.Rotate.RotateAngle(p1, p2, body.GetAngle() * (180 / Math.PI) % 360, out mPoint p3);
-                                //p3 = WorldToProcessing(new Vector2((float)p3.X, (float)p3.Y));
-                                WindowFuncs.SetWindowPos((IntPtr)body.UserData, -2, (int)((int)output.X + (p1.X - p3.X)), (int)((int)output.Y + (p1.Y - p3.Y)), 0, 0, 1 | 4);
-                            }
-                            else
-                            {
-                                WindowFuncs.SetWindowPos((IntPtr)body.UserData, -2, (int)output.X, (int)output.Y, 0, 0, 1 | 4);
-                            }
-                        }
-                    }
-                }
-            }*/
 
             GlobalEvent.Register.UpdateEventAction();
         }
