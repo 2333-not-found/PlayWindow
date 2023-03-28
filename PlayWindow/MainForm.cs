@@ -122,7 +122,7 @@ namespace PlayWindow
 
         private void btn_AddIntPtr_Click(object sender, EventArgs e)
         {
-            if (WDC.NewDummy((IntPtr)Convert.ToInt64(IntPtrTextBox.Text)))
+            if (WDC.NewDummy((IntPtr)Convert.ToInt64(IntPtrTextBox.Text), mh))
             {
                 IntPtrLabel.Text = "窗口句柄";
             }

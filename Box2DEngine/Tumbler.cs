@@ -13,7 +13,7 @@ namespace Box2DEngine
     {
         public IntPtr intPtr_p;//根窗口的IntPtr
         public IntPtr this_intPtr;//Dummy的IntPtr
-        public System.Drawing.Rectangle rect;//保存的的窗口矩形
+        public Rectangle rect;//保存的的窗口矩形
     }
 
     public class Tumbler
@@ -23,7 +23,7 @@ namespace Box2DEngine
 
         public World World;
         public Body body;
-        public float PIXEL_TO_METER = 30;
+        public float PIXEL_TO_METER = 30f;
 
         [DllImport("user32.dll")]
         [return: MarshalAs(UnmanagedType.Bool)]
@@ -35,12 +35,15 @@ namespace Box2DEngine
             public int X;
             public int Y;
         };
-        public static System.Drawing.Point GetMousePosition()
+        public static Point GetMousePosition()
         {
             Win32Point w32Mouse = new Win32Point();
             GetCursorPos(ref w32Mouse);
-            return new System.Drawing.Point(w32Mouse.X, w32Mouse.Y);
+            return new Point(w32Mouse.X, w32Mouse.Y);
         }
+
+        int Height = Screen.PrimaryScreen.Bounds.Height;//获取含任务栏的屏幕大小
+        int Width = Screen.PrimaryScreen.Bounds.Width;
 
         public Tumbler()
         {
@@ -50,8 +53,6 @@ namespace Box2DEngine
                 AllowSleep = true
             };
 
-            var h = Screen.PrimaryScreen.Bounds.Height;//获取含任务栏的屏幕大小
-            var w = Screen.PrimaryScreen.Bounds.Width;
             Vector2 offset = new Vector2(0, 0);
             //var w = SystemInformation.WorkingArea.Width;//获取不含任务栏的屏幕大小
             //var h = SystemInformation.WorkingArea.Height;
@@ -59,13 +60,13 @@ namespace Box2DEngine
             var wallBody = World.CreateBody(wallDef);
 
             EdgeShape wallShape = new EdgeShape();
-            wallShape.SetTwoSided(new Vector2(offset.X, offset.Y), new Vector2(w / PIXEL_TO_METER + offset.X, offset.Y));
+            wallShape.SetTwoSided(new Vector2(offset.X, offset.Y), new Vector2(Width / PIXEL_TO_METER + offset.X, offset.Y));
             wallBody.CreateFixture(wallShape, 0);//下
-            wallShape.SetTwoSided(new Vector2(w / PIXEL_TO_METER + offset.X, offset.Y), new Vector2(w / PIXEL_TO_METER + offset.X, h / PIXEL_TO_METER + offset.Y));
+            wallShape.SetTwoSided(new Vector2(Width / PIXEL_TO_METER + offset.X, offset.Y), new Vector2(Width / PIXEL_TO_METER + offset.X, Height / PIXEL_TO_METER + offset.Y));
             wallBody.CreateFixture(wallShape, 0);//右
-            wallShape.SetTwoSided(new Vector2(w / PIXEL_TO_METER + offset.X, h / PIXEL_TO_METER + offset.Y), new Vector2(offset.X, h / PIXEL_TO_METER + offset.Y));
+            wallShape.SetTwoSided(new Vector2(Width / PIXEL_TO_METER + offset.X, Height / PIXEL_TO_METER + offset.Y), new Vector2(offset.X, Height / PIXEL_TO_METER + offset.Y));
             wallBody.CreateFixture(wallShape, 0);//上
-            wallShape.SetTwoSided(new Vector2(offset.X, h / PIXEL_TO_METER + offset.Y), new Vector2(offset.X, offset.Y));
+            wallShape.SetTwoSided(new Vector2(offset.X, Height / PIXEL_TO_METER + offset.Y), new Vector2(offset.X, offset.Y));
             wallBody.CreateFixture(wallShape, 0);//左
         }
 
@@ -84,7 +85,7 @@ namespace Box2DEngine
             BodyDef bodyDef = new BodyDef
             {
                 BodyType = BodyType.DynamicBody,
-                Position = ProcessingToWorld(targetPos)
+                Position = ConvertScreenToWorld(targetPos)
             };
             PolygonShape shape = new PolygonShape();
             FixtureDef fixtureDef = new FixtureDef
@@ -176,13 +177,14 @@ namespace Box2DEngine
             return false;
         }
 
-        public Vector2 ProcessingToWorld(Vector2 input)
+        public Vector2 Center = new Vector2(0.0f, 20.0f);
+        public Vector2 ConvertScreenToWorld(Vector2 screenPoint)
         {
-            return new Vector2(input.X / PIXEL_TO_METER, (-input.Y + Screen.PrimaryScreen.Bounds.Height) / PIXEL_TO_METER);
+            return new Vector2(screenPoint.X / PIXEL_TO_METER, (Height - screenPoint.Y) / PIXEL_TO_METER);
         }
-        public Vector2 WorldToProcessing(Vector2 input)
+        public Vector2 ConvertWorldToScreen(Vector2 worldPoint)
         {
-            return new Vector2(input.X * PIXEL_TO_METER, -(input.Y * PIXEL_TO_METER - Screen.PrimaryScreen.Bounds.Height));
+            return new Vector2(worldPoint.X * PIXEL_TO_METER, Height - worldPoint.Y * PIXEL_TO_METER);
         }
     }
 }

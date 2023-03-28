@@ -306,7 +306,6 @@ namespace WindowControl
 
         private static bool isLeftMouseDown;
         public static Point pointDelta;
-        public MouseHook.Win32Api.MouseHookStruct MouseHookStruct;
         public static bool IsDraging(IntPtr intPtr)
         {
             if (WindowFuncs.GetRoot(WindowFuncs.GetHandleFromCursor(false)) == IntPtr.Zero)

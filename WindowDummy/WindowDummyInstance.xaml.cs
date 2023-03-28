@@ -12,6 +12,7 @@ using System.Windows.Shell;
 using System.Windows.Threading;
 using WindowControl;
 using Box2DEngine;
+using System.Windows.Forms;
 
 namespace WindowDummy
 {
@@ -24,10 +25,14 @@ namespace WindowDummy
         public IntPtr intPtr_p;//根窗口的IntPtr
         public IntPtr this_intPtr;//Dummy的IntPtr
         public System.Drawing.Rectangle p_Rectangle;
-        public System.Drawing.Rectangle this_Rectangle;
         public System.Drawing.Bitmap srcImage = null;
+
+        private bool isDraging = false;
         public Tumbler tumbler;
         public Body body;
+        public Box2DSharp.Dynamics.Joints.MouseJoint MouseJoint;
+        public Body GroundBody;
+        public Vector2 MouseWorld;
 
         public static readonly bool CurrentTransparent = false;
         private readonly DispatcherTimer UpdateTimer = new DispatcherTimer();
@@ -102,6 +107,7 @@ namespace WindowDummy
             this.Title = intPtr_p.ToString();
             this_intPtr = GetWindowHwndSource(this);
             var rect = WindowFuncs.GetWindowRectangle(intPtr_p);
+            GroundBody = tumbler.World.CreateBody(new BodyDef());
             UserData userData = new UserData()
             {
                 intPtr_p = intPtr_p,
@@ -136,34 +142,119 @@ namespace WindowDummy
             WindowFuncs.ChangeOpacity(intPtr_p, 255);
         }
 
+        #region MouseControl
+
+        private class MouseQueryCallback : IQueryCallback
+        {
+            public Fixture QueryFixture;
+
+            public Vector2 Point;
+
+            public void Reset(in Vector2 point)
+            {
+                QueryFixture = null;
+                Point = point;
+            }
+
+            /// <inheritdoc />
+            public bool QueryCallback(Fixture fixture1)
+            {
+                var body = fixture1.Body;
+                if (body.BodyType == BodyType.DynamicBody)
+                {
+                    var inside = fixture1.TestPoint(Point);
+                    if (inside)
+                    {
+                        QueryFixture = fixture1;
+
+                        // We are done, terminate the query.
+                        return false;
+                    }
+                }
+
+                // Continue the query.
+                return true;
+            }
+        }
+
+        private readonly MouseQueryCallback _callback = new MouseQueryCallback();
+
+        public void OnMouseDown(object sender, MouseEventArgs e)
+        {
+            if (body != null)
+            {
+                if (OtherFuncs.IsDraging(intPtr_p) && MouseJoint == null)//MouseDown
+                {
+                    var p = tumbler.ConvertScreenToWorld(new Vector2(e.Location.X, e.Location.Y));
+                    MouseWorld = p;
+
+                    // Make a small box.
+                    var aabb = new Box2DSharp.Collision.AABB();
+                    var d = new Vector2(0.001f, 0.001f);
+                    aabb.LowerBound = p - d;
+                    aabb.UpperBound = p + d;
+
+                    // Query the world for overlapping shapes.
+                    _callback.Reset(p);
+                    tumbler.World.QueryAABB(_callback, aabb);
+                    if (_callback.QueryFixture != null)
+                    {
+                        float frequencyHz = 5.0f;
+                        float dampingRatio = 0.7f;
+
+                        var body = _callback.QueryFixture.Body;
+                        var jd = new Box2DSharp.Dynamics.Joints.MouseJointDef
+                        {
+                            BodyA = GroundBody,
+                            BodyB = body,
+                            Target = p,
+                            MaxForce = 1000.0f * body.Mass
+                        };
+                        Box2DSharp.Dynamics.Joints.JointUtils.LinearStiffness(out jd.Stiffness, out jd.Damping, frequencyHz, dampingRatio, jd.BodyA, jd.BodyB);
+                        MouseJoint = (Box2DSharp.Dynamics.Joints.MouseJoint)tumbler.World.CreateJoint(jd);
+                        body.IsAwake = true;
+                    }
+                }
+            }
+        }
+
+        public void OnMouseMove(object sender, MouseEventArgs e)
+        {
+            if (body != null)
+            {
+                if (MouseJoint != null)
+                {
+                    MouseWorld = tumbler.ConvertScreenToWorld(new Vector2(e.Location.X, e.Location.Y));
+                    MouseJoint?.SetTarget(tumbler.ConvertScreenToWorld(new Vector2(e.X, e.Y)));
+                }
+            }
+        }
+
+        public void OnMouseUp(object sender, MouseEventArgs e)
+        {
+            if (body != null)
+            {
+                MouseWorld = tumbler.ConvertScreenToWorld(new Vector2(e.Location.X, e.Location.Y));
+
+                UserData userData = body.UserData as UserData;
+                if (MouseJoint != null)
+                {
+                    tumbler.World.DestroyJoint(MouseJoint);
+                    MouseJoint = null;
+                }
+            }
+        }
+
+        #endregion
+
         private void UpdateEvent(object sender, EventArgs e)
         {
+            //保证body不为null
             if (body == null)
             {
                 body = tumbler.GetBody(intPtr_p);
                 return;
             }
-
-            /*// Check position
-            System.Drawing.Graphics currentGraphics = System.Drawing.Graphics.FromHwnd(new WindowInteropHelper(this).Handle);
-
-            var mousePoint = MouseHook.MouseHook.GetMousePos();
-            if (VisualTreeHelper.HitTest((Grid)this.Content, new Point(mousePoint.X - this.Left, mousePoint.Y - this.Top)) != null)
-            {
-                if (CurrentTransparent == true)
-                {
-                    SetTransparentNotHitThrough();
-                }
-                CurrentTransparent = false;
-            }
-            else
-            {
-                if (CurrentTransparent == false)
-                {
-                    SetTransparentHitThrough();
-                }
-                CurrentTransparent = true;
-            }*/
 
             //更新视图
             WindowPic.Source = ToImageSource(OtherFuncs.GetWindowBitmap(intPtr_p));
@@ -176,14 +267,12 @@ namespace WindowDummy
             ContentGrid.RenderTransformOrigin = new Point(0.5, 0.5);
             ContentGrid.RenderTransform = rt;
 
-            //移动
-            UserData userData = body.UserData as UserData;
-            var output = tumbler.WorldToProcessing(body.GetTransform().Position);
-            if (OtherFuncs.IsDraging(userData.intPtr_p))
-            {
-                body.ApplyLinearImpulseToCenter(new Vector2(OtherFuncs.pointDelta.X, OtherFuncs.pointDelta.Y), true);
-            }
-            else
+            //移动部分
+            UserData userData = body.UserData as UserData;//body的UserData
+            var bodyPos = tumbler.ConvertWorldToScreen(body.GetTransform().Position);//body的位置
+            //Console.WriteLine(bodyPos);
+            //替代Reflection功能
+            if (!OtherFuncs.IsDraging(intPtr_p))
             {
                 var area = WindowFuncs.GetWindowRectangle(this_intPtr);
                 if (OtherFuncs.pointDelta.X > area.Left && OtherFuncs.pointDelta.X < area.Right && OtherFuncs.pointDelta.Y > area.Top && OtherFuncs.pointDelta.Y < area.Bottom)
@@ -191,194 +280,27 @@ namespace WindowDummy
                     mPoint p1 = OtherFuncs.pointDelta;
                     mPoint centrePoint = new mPoint() { X = area.X + area.Width / 2, Y = area.Y + area.Height / 2 };
                     Rotate.Rotate.RotateAngle(centrePoint, p1, body.GetAngle() * (180 / Math.PI) % 360, out mPoint p3);
-                    WindowFuncs.SetWindowPos(intPtr_p, -2, (int)((int)output.X + (p1.X - p3.X)), (int)((int)output.Y + (p1.Y - p3.Y)), 0, 0, 1 | 4 | 20);
+                    WindowFuncs.SetWindowPos(intPtr_p, -2, (int)((int)bodyPos.X + (p1.X - p3.X)), (int)((int)bodyPos.Y + (p1.Y - p3.Y)), 0, 0, 1 | 4 | 20);
                 }
                 else
                 {
-                    WindowFuncs.SetWindowPos(intPtr_p, -2, (int)output.X, (int)output.Y, 0, 0, 1 | 4 | 20);
+                    WindowFuncs.SetWindowPos(intPtr_p, -2, (int)bodyPos.X, (int)bodyPos.Y, 0, 0, 1 | 4 | 20);
                 }
             }
-
+            //修改窗口及body大小
             var newRect = WindowFuncs.GetWindowRectangle(intPtr_p);
             if (newRect.Size != userData.rect.Size && WindowPic.Source != null && this.RenderSize == WindowPic.RenderSize)
             {
                 tumbler.SetBodyRectangle(intPtr_p, newRect);
             }
-
-            var pos = tumbler.WorldToProcessing(body.GetTransform().Position);
+            //移动此窗口
+            var pos = tumbler.ConvertWorldToScreen(body.GetTransform().Position);
             WindowFuncs.SetWindowPos(this_intPtr, (int)intPtr_p, (int)pos.X, (int)pos.Y, 0, 0, 1 | 4 | 20);
 
             //AfterAll
-            this.RenderSize = WindowPic.RenderSize;
-            this_Rectangle = WindowFuncs.GetWindowRectangle(this_intPtr);
-
+            this.Width = WindowPic.Source.Width;
+            this.Height = WindowPic.Source.Height;
         }
-
-        /*
-        [DllImport("user32.dll")]
-        public static extern bool ReleaseCapture();
-
-        [DllImport("user32.dll")]
-        public static extern bool SendMessage(IntPtr hwnd, int wMsg, int wParam, int lParam);
-
-        //常量
-        public const int WM_SYSCOMMAND = 0x0112;
-
-        //窗体移动
-        public const int SC_MOVE = 0xF010;
-        public const int HTCAPTION = 0x0002;
-
-        //改变窗体大小
-        public const int WMSZ_LEFT = 0xF001;
-        public const int WMSZ_RIGHT = 0xF002;
-        public const int WMSZ_TOP = 0xF003;
-        public const int WMSZ_TOPLEFT = 0xF004;
-        public const int WMSZ_TOPRIGHT = 0xF005;
-        public const int WMSZ_BOTTOM = 0xF006;
-        public const int WMSZ_BOTTOMLEFT = 0xF007;
-        public const int WMSZ_BOTTOMRIGHT = 0xF008;
-
-        //窗体大小的改变object
-        
-        private void WindowDummyInstance_MouseDown(object sender, MouseButtonEventArgs e)
-        {
-            Rectangle tl = new Rectangle(0, 0, 8, 8);
-            Rectangle tr = new Rectangle(this.Width - 8, 0, 8, 8);
-            Rectangle dr = new Rectangle(0, this.Height - 8, 8, 8);
-            Rectangle dl = new Rectangle(this.Width - 8, this.Height - 8, 8, 8);
-            if (tl.Contains(this.PointToClient(Cursor.Position)))
-            {
-                ReleaseCapture();
-                SendMessage(this.Handle, WM_SYSCOMMAND, (int)WMSZ_TOPLEFT, 0);
-                //SendMessage(intPtr_p, WM_SYSCOMMAND, (int)WMSZ_TOPLEFT, 0);
-                this.Cursor = Cursors.Arrow;
-            }
-            else if (tr.Contains(this.PointToClient(Cursor.Position)))
-            {
-                ReleaseCapture();
-                SendMessage(this.Handle, WM_SYSCOMMAND, (int)WMSZ_TOPRIGHT, 0);
-                //SendMessage(intPtr_p, WM_SYSCOMMAND, (int)WMSZ_TOPRIGHT, 0);
-                this.Cursor = Cursors.Arrow;
-            }
-            else if (dr.Contains(this.PointToClient(Cursor.Position)))
-            {
-                ReleaseCapture();
-                SendMessage(this.Handle, WM_SYSCOMMAND, (int)WMSZ_BOTTOMLEFT, 0);
-                //SendMessage(intPtr_p, WM_SYSCOMMAND, (int)WMSZ_BOTTOMLEFT, 0);
-                this.Cursor = Cursors.Arrow;
-            }
-            else if (dl.Contains(this.PointToClient(Cursor.Position)))
-            {
-                ReleaseCapture();
-                SendMessage(this.Handle, WM_SYSCOMMAND, (int)WMSZ_BOTTOMRIGHT, 0);
-                //SendMessage(intPtr_p, WM_SYSCOMMAND, (int)WMSZ_BOTTOMRIGHT, 0);
-                this.Cursor = Cursors.Arrow;
-            }
-            else
-            {
-                this.Cursor = Cursors.Arrow;
-            }
-        }
-
-        private void WindowPic_MouseDown(object sender, MouseButtonEventArgs e)
-        {
-            //窗体移动
-            //Console.WriteLine(p_Rectangle.Contains(this.PointToClient(Cursor.Position)));
-            //Console.WriteLine(clientRectangle.Contains(this.PointToClient(Cursor.Position)));
-            if (!clientRectangle.Contains(this.PointToClient(Cursor.Position)))
-            {
-                ReleaseCapture();
-                SendMessage(this.Handle, WM_SYSCOMMAND, SC_MOVE + HTCAPTION, 0);
-                OnUpdate();
-            }
-
-            Rectangle tl = new Rectangle(0, 0, 8, 8);
-            Rectangle tr = new Rectangle(this.Width - 8, 0, 8, 8);
-            Rectangle dr = new Rectangle(0, this.Height - 8, 8, 8);
-            Rectangle dl = new Rectangle(this.Width - 8, this.Height - 8, 8, 8);
-            if (tl.Contains(this.PointToClient(Cursor.Position)))
-            {
-                ReleaseCapture();
-                SendMessage(this.Handle, WM_SYSCOMMAND, (int)WMSZ_TOPLEFT, 0);
-                this.Cursor = Cursors.Arrow;
-            }
-            else if (tr.Contains(this.PointToClient(Cursor.Position)))
-            {
-                ReleaseCapture();
-                SendMessage(this.Handle, WM_SYSCOMMAND, (int)WMSZ_TOPRIGHT, 0);
-                this.Cursor = Cursors.Arrow;
-            }
-            else if (dr.Contains(this.PointToClient(Cursor.Position)))
-            {
-                ReleaseCapture();
-                SendMessage(this.Handle, WM_SYSCOMMAND, (int)WMSZ_BOTTOMLEFT, 0);
-                this.Cursor = Cursors.Arrow;
-            }
-            else if (dl.Contains(this.PointToClient(Cursor.Position)))
-            {
-                ReleaseCapture();
-                SendMessage(this.Handle, WM_SYSCOMMAND, (int)WMSZ_BOTTOMRIGHT, 0);
-                this.Cursor = Cursors.Arrow;
-            }
-            else
-            {
-                this.Cursor = Cursors.Arrow;
-            }
-
-            //Reflection
-            mPoint p3;
-            var _ = this.PointToClient(Cursor.Position);
-            mPoint p2;
-            p2.X = _.X;
-            p2.Y = _.Y;
-            Rotate.Rotate.RotateAngle(p1, p2, 30, out p3);
-        }
-
-        private void WindowDummyInstance_MouseLeave(object sender, MouseEventArgs e)
-        {
-            this.Cursor = Cursors.Arrow;
-        }
-
-
-        #endregion
-
-        private void WindowDummyInstance_MouseUp(object sender, MouseButtonEventArgs e)
-        {
-            OnUpdate();
-        }
-
-        private void WindowPic_MouseUp(object sender, MouseButtonEventArgs e)
-        {
-            OnUpdate();
-        }
-        
-        private void UpdateEvent(object sender, EventArgs e)
-        {
-            Rectangle tl = new Rectangle(0, 0, 8, 8);
-            Rectangle tr = new Rectangle(this.Width - 8, 0, 8, 8);
-            Rectangle dr = new Rectangle(0, this.Height - 8, 8, 8);
-            Rectangle dl = new Rectangle(this.Width - 8, this.Height - 8, 8, 8);
-            if (tl.Contains(this.PointToClient(Cursor.Position)))
-            {
-                this.Cursor = Cursors.SizeNWSE;
-            }
-            else if (tr.Contains(this.PointToClient(Cursor.Position)))
-            {
-                this.Cursor = Cursors.SizeNESW;
-            }
-            else if (dr.Contains(this.PointToClient(Cursor.Position)))
-            {
-                this.Cursor = Cursors.SizeNESW;
-            }
-            else if (dl.Contains(this.PointToClient(Cursor.Position)))
-            {
-                this.Cursor = Cursors.SizeNWSE;
-            }
-            else
-            {
-                this.Cursor = Cursors.Arrow;
-            }
-        }*/
 
         #region 穿透模块
 

@@ -34,7 +34,7 @@ namespace WindowDummy
             engine.Run();
         }
 
-        public bool NewDummy(IntPtr intPtr)
+        public bool NewDummy(IntPtr intPtr, MouseHook.MouseHook mh)
         {
             //检查IntPtr是否有效
             if (OtherFuncs.GetWindowBitmap(WindowFuncs.GetRoot(intPtr)) == null)
@@ -47,6 +47,9 @@ namespace WindowDummy
                 intPtr = intPtr,
                 tumbler = engine._tumbler
             };
+            mh.MouseDownEvent += windowDummyInstance.OnMouseDown;
+            mh.MouseUpEvent += windowDummyInstance.OnMouseUp;
+            mh.MouseMoveEvent += windowDummyInstance.OnMouseMove;
             windowDummyInstance.Show();
             windowDummyInstances.Add(windowDummyInstance);
             return true;
