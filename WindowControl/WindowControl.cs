@@ -127,7 +127,7 @@ namespace WindowControl
         public static int SWP_NOREPOSITION = SWP_NOOWNERZORDER;
         public static int SWP_DEFERERASE = 2000; //{防止产生 WM_SYNCPAINT 消息}
         public static int SWP_ASYNCWINDOWPOS = 4000; //{若调用进程不拥有窗口, 系统会向拥有窗口的线程发出需求}
-        
+
         [DllImport("user32.dll", CharSet = CharSet.Auto)]
         public static extern bool SetWindowPos(IntPtr hWnd, int hWndlnsertAfter, int X, int Y, int cx, int cy, uint Flags);
 
@@ -138,7 +138,7 @@ namespace WindowControl
             return intPtr;
         }
 
-        public static IntPtr GetHandleFromCursor(bool childrenOrRoot)
+        public static IntPtr GetHandleFromCursor(bool isRoot)
         {
             //this.Text = title + string.Format("坐标：X={0},Y={1}", Cursor.Position.X, Cursor.Position.Y);
 
@@ -189,7 +189,7 @@ namespace WindowControl
                 }
             }
             catch { }*/
-            if (childrenOrRoot)
+            if (isRoot)
                 return cHandle;
             else
             {
@@ -284,7 +284,6 @@ namespace WindowControl
                 {
                     GetWindowRect(intPtr, out Rectangle rect);  //获得目标窗体的大小
                     bitmap = new Bitmap(rect.Width - rect.X, rect.Height - rect.Y);
-                    //Console.WriteLine(rect);
 
                     Graphics g1 = Graphics.FromImage(bitmap);
                     IntPtr hdc1 = GetWindowDC(intPtr);
@@ -337,7 +336,7 @@ namespace WindowControl
             }
             isLeftMouseDown = false;
         }
-        public static void MouseMoveEvent(object sender,MouseEventArgs e)
+        public static void MouseMoveEvent(object sender, MouseEventArgs e)
         {
             pointDelta = e.Location;
         }
@@ -394,7 +393,6 @@ namespace MouseHook
             }
         }
         private int hHook;
-        private static int hMouseHook = 0;
         private const int WM_MOUSEMOVE = 0x200;
         private const int WM_LBUTTONDOWN = 0x201;
         private const int WM_RBUTTONDOWN = 0x204;

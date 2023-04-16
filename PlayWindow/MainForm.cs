@@ -18,6 +18,7 @@ namespace PlayWindow
 
         public MouseHook.MouseHook mh;//钩子实例
         public WindowDummyCenter WDC = new WindowDummyCenter();
+        QuickAddForm quickAddForm = null;
 
         public MainForm()
         {
@@ -64,25 +65,32 @@ namespace PlayWindow
         private void UpdateEvent(object sender, EventArgs e)
         {
             IntPtrListView.Items.Clear();
-            foreach (var intptr in WDC.windowDummyInstances)
+
+            for (int i = 0; i < WDC.windowDummyInstances.Count; i++)
             {
+                WindowDummyInstance singleWDC = WDC.windowDummyInstances[i];
+                if (singleWDC == null)
+                {
+                    WDC.windowDummyInstances.RemoveAt(i);
+                    break;
+                }
                 ListViewItem item = new ListViewItem();
                 StringBuilder sb = new StringBuilder(255);
-                WindowFuncs.GetWindowText(intptr.intPtr_p, sb, sb.Capacity);
+                WindowFuncs.GetWindowText(singleWDC.intPtr_p, sb, sb.Capacity);
                 item.SubItems[0].Text = sb.ToString();
                 ListViewItem.ListViewSubItem windowIntPtr = new ListViewItem.ListViewSubItem
                 {
-                    Text = Convert.ToString(intptr.intPtr)
+                    Text = Convert.ToString(singleWDC.intPtr)
                 };
                 item.SubItems.Add(windowIntPtr);
                 ListViewItem.ListViewSubItem windowIntPtrDummy = new ListViewItem.ListViewSubItem
                 {
-                    Text = Convert.ToString(intptr.intPtr_p)
+                    Text = Convert.ToString(singleWDC.intPtr_p)
                 };
                 item.SubItems.Add(windowIntPtrDummy);
                 ListViewItem.ListViewSubItem windowRect = new ListViewItem.ListViewSubItem
                 {
-                    Text = Convert.ToString(WindowFuncs.GetWindowRectangle(intptr.intPtr_p))
+                    Text = Convert.ToString(WindowFuncs.GetWindowRectangle(singleWDC.intPtr_p))
                 };
                 item.SubItems.Add(windowRect);
 
@@ -138,6 +146,17 @@ namespace PlayWindow
             aboutForm.ShowDialog();
         }
 
+        private void 快捷添加窗口ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            //if (quickAddForm == null)
+            //{
+            quickAddForm = new QuickAddForm();
+            quickAddForm.Show();
+            quickAddForm.mh = mh;
+            quickAddForm.WDC = WDC;
+            //}
+        }
+
         #endregion
 
         #region Debug stuff
@@ -145,6 +164,11 @@ namespace PlayWindow
         private void DEBUG_btn_manualGlobalUpdate_Click(object sender, EventArgs e)
         {
             GlobalEvent.Register.UpdateEventAction();
+        }
+
+        private void DEBUG_btn_setBodyPos_Click(object sender, EventArgs e)
+        {
+            WDC.engine._tumbler.SetBodyPos((IntPtr)Convert.ToInt32(DEBUG_tb_setBodyPos.Text), new System.Numerics.Vector2((float)DEBUG_Engine_setBodyPosX.Value, (float)DEBUG_Engine_setBodyPosY.Value));
         }
 
         private void DEBUG_btn_addImpulse_Click(object sender, EventArgs e)

@@ -73,8 +73,8 @@ namespace Box2DEngine
         public void Step()
         {
             World.Step(1 / 60f, 8, 3);
-            if (GetConsoleWindow() != IntPtr.Zero)
-                Console.Clear();
+            //if (GetConsoleWindow() != IntPtr.Zero)
+            //    Console.Clear();
 
             GlobalEvent.Register.UpdateEventAction();
         }
@@ -114,6 +114,20 @@ namespace Box2DEngine
                     //body.ApplyLinearImpulse(Impulse, null, true);
                     body.ApplyLinearImpulseToCenter(impulse, true);
 
+                }
+            }
+
+        }
+        public void SetBodyPos(IntPtr target, Vector2 pos)
+        {
+            Body body = GetBody(target);
+            if (body != null && body.UserData != null)
+            {
+                UserData userData = body.UserData as UserData;
+                if (userData.intPtr_p == target)
+                {
+                    body.SetTransform(ConvertScreenToWorld(pos), body.GetAngle());
+                    body.IsAwake = true;
                 }
             }
 
