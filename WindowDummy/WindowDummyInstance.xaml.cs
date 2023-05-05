@@ -7,9 +7,12 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Interop;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using System.Windows.Shell;
 using System.Windows.Threading;
+using System.Threading;
+using System.Threading.Tasks;
 using WindowControl;
 using Box2DEngine;
 using System.Windows.Forms;
@@ -86,17 +89,11 @@ namespace WindowDummy
 
             SetTransparentHitThrough();
         }
-
-        //第零步：初始化参数
-        //第一步：找到父窗口的RECT（然后设置文本）
-        //第二步：截图并填充图像
-        //第三步：找到根窗口句柄（然后设置文本）
-        //第四步：将本实例放到窗口位置
-        //TODO：
-        //第五步：旋转+移动
-        //第六步：映射
-        //第七步：监测鼠标移动窗口
-        //第八步：监测窗口大小更新
+        public static void LoadWindow()
+        {
+            WindowDummyInstance windowDummyInstance = new WindowDummyInstance();
+            windowDummyInstance.Show();
+        }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
@@ -131,13 +128,10 @@ namespace WindowDummy
             this.Top = p_Rectangle.Location.X;
             this.Left = p_Rectangle.Location.Y;
 
-            //第八步：监测窗口大小更新
-
             UpdateTimer.Start();
         }
         private void Window_Closed(object sender, EventArgs e)
         {
-            tumbler.World.DestroyBody(body);
             WindowFuncs.ChangeOpacity(intPtr_p, 255);
         }
 
@@ -235,7 +229,6 @@ namespace WindowDummy
             {
                 MouseWorld = tumbler.ConvertScreenToWorld(new Vector2(e.Location.X, e.Location.Y));
 
-                UserData userData = body.UserData as UserData;
                 if (MouseJoint != null)
                 {
                     tumbler.World.DestroyJoint(MouseJoint);
@@ -246,75 +239,107 @@ namespace WindowDummy
 
         #endregion
 
-        private void UpdateEvent(object sender, EventArgs e)
+        private async void UpdateEvent(object sender, EventArgs e)
         {
-            WindowPic.Source = ToImageSource(OtherFuncs.GetWindowBitmap(intPtr_p));
-            if (WindowPic.Source == null)
-            {
-                tumbler.World.DestroyBody(body);
-                tumbler.World.DestroyBody(GroundBody);
-                this.Close();
-                return;
-            }
-            //保证body不为null
-            if (body == null)
-            {
-                body = tumbler.GetBody(intPtr_p);
-                return;
-            }
+            await AnUpdate();
+        }
+        public async Task AnUpdate()
+        {
+            await
+                   this.Dispatcher.InvokeAsync(new Action(() =>
+                   {
+                       //填充图像
+                       WindowPic.Source = ToImageSource(OtherFuncs.GetWindowBitmap(intPtr_p));
+                       if (WindowPic.Source == null)
+                       {
+                           tumbler.World.DestroyBody(body);
+                           tumbler.World.DestroyBody(GroundBody);
+                           this.Close();
+                           return;
+                       }
+                       if (body == null)
+                       {
+                           body = tumbler.GetBody(intPtr_p);
+                           return;
+                       }
 
-            //移动部分
-            UserData userData = body.UserData as UserData;//body的UserData
-            var bodyPos = tumbler.ConvertWorldToScreen(body.GetTransform().Position);//body的位置
-            //替代Reflection功能
-            if (!OtherFuncs.IsDraging(intPtr_p))
-            {
-                var area = WindowFuncs.GetWindowRectangle(this_intPtr);
-                if (OtherFuncs.pointDelta.X > area.Left && OtherFuncs.pointDelta.X < area.Right && OtherFuncs.pointDelta.Y > area.Top && OtherFuncs.pointDelta.Y < area.Bottom)
-                {/*
-                    mPoint p1 = OtherFuncs.pointDelta;
-                    mPoint centrePoint = new mPoint() { X = area.X + area.Width / 2, Y = area.Y + area.Height / 2 };
-                    Rotate.Rotate.RotateAngle(centrePoint, p1, body.GetAngle() * (180 / Math.PI) % 360, out mPoint p3);
-                    WindowFuncs.SetWindowPos(intPtr_p, -2, (int)((int)bodyPos.X + (p1.X - p3.X)), (int)((int)bodyPos.Y + (p1.Y - p3.Y)), 0, 0, 1 | 4 | 20);
-                */
-                    var mousept = Rotate.Rotate.GetRotateRectangle(OtherFuncs.pointDelta.X, OtherFuncs.pointDelta.Y, (float)(body.GetAngle() * (180 / Math.PI) % 360));
-                    WindowFuncs.SetWindowPos(intPtr_p, -2, (int)bodyPos.X + mousept.X, (int)bodyPos.Y + mousept.Y, 0, 0, 1 | 4 | 20);
-                }
-                else
-                {
-                    WindowFuncs.SetWindowPos(intPtr_p, -2, (int)bodyPos.X, (int)bodyPos.Y, 0, 0, 1 | 4 | 20);
-                }
-            }
-            //修改窗口及body大小
-            var newRect = WindowFuncs.GetWindowRectangle(intPtr_p);
-            if (newRect.Size != userData.rect.Size && WindowPic.Source != null && this.RenderSize == WindowPic.RenderSize)
-            {
-                tumbler.SetBodyRectangle(intPtr_p, newRect);
-            }
-            //移动此窗口
-            var pos = tumbler.ConvertWorldToScreen(body.GetTransform().Position);
-            WindowFuncs.SetWindowPos(this_intPtr, (int)intPtr_p, (int)pos.X, (int)pos.Y, 0, 0, 1 | 4 | 20);
+                       //移动部分
+                       UserData userData = body.UserData as UserData;//body的UserData
+                       var bodyPos = tumbler.ConvertWorldToScreen(body.GetTransform().Position);//body的位置
+                                                                                                //替代Reflection功能
+                       if (!OtherFuncs.IsDraging(intPtr_p))
+                       {
+                           var area = WindowFuncs.GetWindowRectangle(this_intPtr);
+                           if (OtherFuncs.pointDelta.X > area.Left && OtherFuncs.pointDelta.X < area.Right && OtherFuncs.pointDelta.Y > area.Top && OtherFuncs.pointDelta.Y < area.Bottom)
+                           {/*
+                            mPoint p1 = OtherFuncs.pointDelta;
+                            mPoint centrePoint = new mPoint() { X = area.X + area.Width / 2, Y = area.Y + area.Height / 2 };
+                            Rotate.Rotate.RotateAngle(centrePoint, p1, body.GetAngle() * (180 / Math.PI) % 360, out mPoint p3);
+                            WindowFuncs.SetWindowPos(intPtr_p, -2, (int)((int)bodyPos.X + (p1.X - p3.X)), (int)((int)bodyPos.Y + (p1.Y - p3.Y)), 0, 0, 1 | 4 | 20);
+                            */
+                               var mousept = Rotate.Rotate.GetRotateRectangle(OtherFuncs.pointDelta.X, OtherFuncs.pointDelta.Y, (float)(body.GetAngle() * (180 / Math.PI) % 360));
+                               WindowFuncs.SetWindowPos(intPtr_p, -2, (int)bodyPos.X + mousept.X, (int)bodyPos.Y + mousept.Y, 0, 0, 1 | 4 | 20);
+                           }
+                           else
+                           {
+                               WindowFuncs.SetWindowPos(intPtr_p, -2, (int)bodyPos.X, (int)bodyPos.Y, 0, 0, 1 | 4 | 20);
+                           }
+                       }
+                       //修改窗口及body大小
+                       var newRect = WindowFuncs.GetWindowRectangle(intPtr_p);
+                       if (newRect.Size != userData.rect.Size && WindowPic.Source != null && this.RenderSize == WindowPic.RenderSize)
+                       {
+                           tumbler.SetBodyRectangle(intPtr_p, newRect);
+                       }
+                       //移动此窗口
+                       var pos = tumbler.ConvertWorldToScreen(body.GetTransform().Position);
+                       WindowFuncs.SetWindowPos(this_intPtr, (int)intPtr_p, (int)pos.X, (int)pos.Y, 0, 0, 1 | 4 | 20);
 
-            //更新视图
-            RotateTransform rt = new RotateTransform
-            {
-                Angle = -(body.GetAngle() * (180 / Math.PI) % 360)
-            };
-            WindowPic.RenderTransformOrigin = new Point(0.5, 0.5);
-            WindowPic.RenderTransform = rt;
+                       //更新视图
+                       RotateTransform rt = new RotateTransform
+                       {
+                           Angle = body.GetAngle() * (180 / Math.PI) % 360
+                       };
+                       //WindowPic.RenderTransformOrigin = new Point(0.5, 0.5);
+                       //WindowPic.RenderTransform = rt;
+                       WindowPic.LayoutTransform = rt;
 
-            System.Drawing.Rectangle realRect = Rotate.Rotate.GetRotateRectangle(WindowPic.Source.Width, WindowPic.Source.Height, (float)(body.GetAngle() * (180 / Math.PI) % 360));
-            //this.Width = realRect.Width;
-            //this.Height = realRect.Height;
-            this.Width = realRect.Width >= WindowPic.Source.Width ? realRect.Width : WindowPic.Source.Width;
-            this.Height = realRect.Height >= WindowPic.Source.Height ? realRect.Height : WindowPic.Source.Height;
-            WindowPic.Width = WindowPic.Source.Width;
-            WindowPic.Height = WindowPic.Source.Height;
-            //var margin = WindowPic.Margin;
-            //margin.Left = (realRect.Width - WindowPic.Source.Width) / 2;
-            //margin.Top = (realRect.Height - WindowPic.Source.Height) / 2;
-            //WindowPic.Margin = margin;
-            Console.WriteLine((body.GetAngle() * (180 / Math.PI) % 360) + " " + WindowPic.Margin + " " + WindowPic.RenderSize);
+                       System.Drawing.Rectangle realRect = Rotate.Rotate.GetRotateRectangle(WindowPic.Source.Width, WindowPic.Source.Height, (float)(body.GetAngle() * (180 / Math.PI) % 360));
+                       this.Width = realRect.Width;
+                       this.Height = realRect.Height;
+                       WindowPic.Width = WindowPic.Source.Width;
+                       WindowPic.Height = WindowPic.Source.Height;
+
+                       try
+                       {
+                           rt = WindowPic.RenderTransform as RotateTransform;
+                           if (rt.Angle == body.GetAngle() * (180 / Math.PI) % 360)
+                           {
+                               return;
+                           }
+                           else
+                           {
+                               rt = new RotateTransform
+                               {
+                                   Angle = body.GetAngle() * (180 / Math.PI) % 360
+                               };
+                               //WindowPic.RenderTransformOrigin = new Point(0.5, 0.5);
+                               //WindowPic.RenderTransform = rt;
+                               WindowPic.LayoutTransform = rt;
+                           }
+                       }
+                       catch { }
+                       {
+                           rt = new RotateTransform
+                           {
+                               Angle = body.GetAngle() * (180 / Math.PI) % 360
+                           };
+                           //WindowPic.RenderTransformOrigin = new Point(0.5, 0.5);
+                           //WindowPic.RenderTransform = rt;
+                           WindowPic.LayoutTransform = rt;
+                       }
+                       //Console.WriteLine(body.GetAngle() * (180 / Math.PI) % 360);
+                   }));
         }
 
         #region 穿透模块

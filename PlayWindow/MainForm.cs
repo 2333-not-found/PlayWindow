@@ -57,6 +57,7 @@ namespace PlayWindow
                     break;
             }
 
+            WDC.mh = mh;
             WDC.StartEngine();
             listRefreshTimer.Start();
             IntPtrTextBox.Focus();
@@ -130,14 +131,7 @@ namespace PlayWindow
 
         private void btn_AddIntPtr_Click(object sender, EventArgs e)
         {
-            if (WDC.NewDummy((IntPtr)Convert.ToInt64(IntPtrTextBox.Text), mh))
-            {
-                IntPtrLabel.Text = "窗口句柄";
-            }
-            else
-            {
-                IntPtrLabel.Text = "请输入有效的IntPtr";
-            }
+            WDC.RunNewWindowAsync((IntPtr)Convert.ToInt64(IntPtrTextBox.Text), mh);
         }
 
         private void 帮助_关于ToolStripMenuItem_Click(object sender, EventArgs e)
@@ -155,6 +149,11 @@ namespace PlayWindow
             quickAddForm.mh = mh;
             quickAddForm.WDC = WDC;
             //}
+        }
+
+        private void tb_hertz_slider_Scroll(object sender, EventArgs e)
+        {
+            WDC.engine._tumbler.hertz = tb_hertz_slider.Value;
         }
 
         #endregion

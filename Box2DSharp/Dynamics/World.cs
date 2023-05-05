@@ -443,7 +443,8 @@ namespace Box2DSharp.Dynamics
             // 时间间隔与迭代次数
             var step = new TimeStep
             {
-                Dt = timeStep, VelocityIterations = velocityIterations,
+                Dt = timeStep,
+                VelocityIterations = velocityIterations,
                 PositionIterations = positionIterations
             };
 

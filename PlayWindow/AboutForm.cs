@@ -9,6 +9,10 @@ namespace PlayWindow
         {
             InitializeComponent();
         }
+        private void AboutForm_Load(object sender, EventArgs e)
+        {
+            label_version.Text = BuildDate.Version().ToString();
+        }
 
         private void ConfirmButton_Click(object sender, EventArgs e)
         {

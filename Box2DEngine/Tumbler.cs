@@ -4,7 +4,6 @@ using System.Windows.Forms;
 using Box2DSharp.Collision.Shapes;
 using Box2DSharp.Dynamics;
 using WindowControl;
-using System.Runtime.InteropServices;
 using System.Drawing;
 
 namespace Box2DEngine
@@ -18,44 +17,27 @@ namespace Box2DEngine
 
     public class Tumbler
     {
-        [DllImport("kernel32.dll")]
-        static extern IntPtr GetConsoleWindow();
-
         public World World;
+        public int velocityIterations = 8;
+        public int positionIterations = 3;
+        public float hertz = 60f;
         public Body body;
-        public float PIXEL_TO_METER = 30f;
+        public float PIXEL_TO_METER = 100f;
 
-        [DllImport("user32.dll")]
-        [return: MarshalAs(UnmanagedType.Bool)]
-        internal static extern bool GetCursorPos(ref Win32Point pt);
-
-        [StructLayout(LayoutKind.Sequential)]
-        internal struct Win32Point
-        {
-            public int X;
-            public int Y;
-        };
-        public static Point GetMousePosition()
-        {
-            Win32Point w32Mouse = new Win32Point();
-            GetCursorPos(ref w32Mouse);
-            return new Point(w32Mouse.X, w32Mouse.Y);
-        }
-
-        int Height = Screen.PrimaryScreen.Bounds.Height;//获取含任务栏的屏幕大小
-        int Width = Screen.PrimaryScreen.Bounds.Width;
+        readonly int Height = Screen.PrimaryScreen.Bounds.Height;//获取含任务栏的屏幕大小
+        readonly int Width = Screen.PrimaryScreen.Bounds.Width;
+        //readonly int w = SystemInformation.WorkingArea.Width;//获取不含任务栏的屏幕大小
+        //readonly int h = SystemInformation.WorkingArea.Height;
 
         public Tumbler()
         {
             World = new World
             {
-                Gravity = new Vector2(0.0f, -50.0f),
+                Gravity = new Vector2(0.0f, -10.0f),
                 AllowSleep = true
             };
 
             Vector2 offset = new Vector2(0, 0);
-            //var w = SystemInformation.WorkingArea.Width;//获取不含任务栏的屏幕大小
-            //var h = SystemInformation.WorkingArea.Height;
             var wallDef = new BodyDef();
             var wallBody = World.CreateBody(wallDef);
 
@@ -72,9 +54,7 @@ namespace Box2DEngine
 
         public void Step()
         {
-            World.Step(1 / 60f, 8, 3);
-            //if (GetConsoleWindow() != IntPtr.Zero)
-            //    Console.Clear();
+            World.Step(1 / hertz, velocityIterations, positionIterations);
 
             GlobalEvent.Register.UpdateEventAction();
         }
@@ -113,7 +93,6 @@ namespace Box2DEngine
                 {
                     //body.ApplyLinearImpulse(Impulse, null, true);
                     body.ApplyLinearImpulseToCenter(impulse, true);
-
                 }
             }
 
@@ -130,7 +109,6 @@ namespace Box2DEngine
                     body.IsAwake = true;
                 }
             }
-
         }
         public void RotateBody(IntPtr intPtr, float angle)
         {
@@ -165,7 +143,6 @@ namespace Box2DEngine
         }
         public Rectangle GetBodyRectangle(IntPtr intPtr)
         {
-
             Body body = GetBody(intPtr);
             if (body != null && body.UserData != null)
             {
@@ -191,7 +168,6 @@ namespace Box2DEngine
             return false;
         }
 
-        public Vector2 Center = new Vector2(0.0f, 20.0f);
         public Vector2 ConvertScreenToWorld(Vector2 screenPoint)
         {
             return new Vector2(screenPoint.X / PIXEL_TO_METER, (Height - screenPoint.Y) / PIXEL_TO_METER);

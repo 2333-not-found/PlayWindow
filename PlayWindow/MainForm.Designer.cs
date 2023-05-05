@@ -32,6 +32,7 @@ namespace PlayWindow
             this.components = new System.ComponentModel.Container();
             this.contentMenuStrip = new System.Windows.Forms.MenuStrip();
             this.菜单ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.快捷添加窗口ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.帮助ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.帮助_关于ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.notifyIcon1 = new System.Windows.Forms.NotifyIcon(this.components);
@@ -65,7 +66,7 @@ namespace PlayWindow
             this.DEBUG_Engine_addImpulseX = new System.Windows.Forms.NumericUpDown();
             this.DEBUG_btn_manualGlobalUpdate = new System.Windows.Forms.Button();
             this.listRefreshTimer = new System.Windows.Forms.Timer(this.components);
-            this.快捷添加窗口ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.tb_hertz_slider = new System.Windows.Forms.TrackBar();
             this.contentMenuStrip.SuspendLayout();
             this.tabPageMain.SuspendLayout();
             this.tabControlMain.SuspendLayout();
@@ -76,6 +77,7 @@ namespace PlayWindow
             ((System.ComponentModel.ISupportInitialize)(this.DEBUG_Engine_rotateBody)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.DEBUG_Engine_addImpulseY)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.DEBUG_Engine_addImpulseX)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.tb_hertz_slider)).BeginInit();
             this.SuspendLayout();
             // 
             // contentMenuStrip
@@ -96,6 +98,13 @@ namespace PlayWindow
             this.菜单ToolStripMenuItem.Size = new System.Drawing.Size(64, 21);
             this.菜单ToolStripMenuItem.Text = "菜单(&M)";
             // 
+            // 快捷添加窗口ToolStripMenuItem
+            // 
+            this.快捷添加窗口ToolStripMenuItem.Name = "快捷添加窗口ToolStripMenuItem";
+            this.快捷添加窗口ToolStripMenuItem.Size = new System.Drawing.Size(148, 22);
+            this.快捷添加窗口ToolStripMenuItem.Text = "快捷添加窗口";
+            this.快捷添加窗口ToolStripMenuItem.Click += new System.EventHandler(this.快捷添加窗口ToolStripMenuItem_Click);
+            // 
             // 帮助ToolStripMenuItem
             // 
             this.帮助ToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
@@ -107,7 +116,7 @@ namespace PlayWindow
             // 帮助_关于ToolStripMenuItem
             // 
             this.帮助_关于ToolStripMenuItem.Name = "帮助_关于ToolStripMenuItem";
-            this.帮助_关于ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.帮助_关于ToolStripMenuItem.Size = new System.Drawing.Size(116, 22);
             this.帮助_关于ToolStripMenuItem.Text = "关于(&A)";
             this.帮助_关于ToolStripMenuItem.Click += new System.EventHandler(this.帮助_关于ToolStripMenuItem_Click);
             // 
@@ -259,6 +268,7 @@ namespace PlayWindow
             // 
             // DEBUG_Engine_groupBox
             // 
+            this.DEBUG_Engine_groupBox.Controls.Add(this.tb_hertz_slider);
             this.DEBUG_Engine_groupBox.Controls.Add(this.DEBUG_tb_setBodyPos);
             this.DEBUG_Engine_groupBox.Controls.Add(this.DEBUG_Engine_setBodyPosLabel);
             this.DEBUG_Engine_groupBox.Controls.Add(this.DEBUG_Engine_setBodyPosY);
@@ -274,7 +284,7 @@ namespace PlayWindow
             this.DEBUG_Engine_groupBox.Controls.Add(this.DEBUG_Engine_addImpulseX);
             this.DEBUG_Engine_groupBox.Location = new System.Drawing.Point(8, 6);
             this.DEBUG_Engine_groupBox.Name = "DEBUG_Engine_groupBox";
-            this.DEBUG_Engine_groupBox.Size = new System.Drawing.Size(402, 126);
+            this.DEBUG_Engine_groupBox.Size = new System.Drawing.Size(402, 161);
             this.DEBUG_Engine_groupBox.TabIndex = 2;
             this.DEBUG_Engine_groupBox.TabStop = false;
             this.DEBUG_Engine_groupBox.Text = "Engine";
@@ -477,12 +487,16 @@ namespace PlayWindow
             // 
             this.listRefreshTimer.Interval = 200;
             // 
-            // 快捷添加窗口ToolStripMenuItem
+            // tb_hertz_slider
             // 
-            this.快捷添加窗口ToolStripMenuItem.Name = "快捷添加窗口ToolStripMenuItem";
-            this.快捷添加窗口ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.快捷添加窗口ToolStripMenuItem.Text = "快捷添加窗口";
-            this.快捷添加窗口ToolStripMenuItem.Click += new System.EventHandler(this.快捷添加窗口ToolStripMenuItem_Click);
+            this.tb_hertz_slider.Location = new System.Drawing.Point(6, 99);
+            this.tb_hertz_slider.Maximum = 120;
+            this.tb_hertz_slider.Minimum = 1;
+            this.tb_hertz_slider.Name = "tb_hertz_slider";
+            this.tb_hertz_slider.Size = new System.Drawing.Size(381, 45);
+            this.tb_hertz_slider.TabIndex = 17;
+            this.tb_hertz_slider.Value = 60;
+            this.tb_hertz_slider.Scroll += new System.EventHandler(this.tb_hertz_slider_Scroll);
             // 
             // MainForm
             // 
@@ -508,6 +522,7 @@ namespace PlayWindow
             ((System.ComponentModel.ISupportInitialize)(this.DEBUG_Engine_rotateBody)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.DEBUG_Engine_addImpulseY)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.DEBUG_Engine_addImpulseX)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.tb_hertz_slider)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -551,6 +566,7 @@ namespace PlayWindow
         private System.Windows.Forms.NumericUpDown DEBUG_Engine_setBodyPosY;
         private System.Windows.Forms.NumericUpDown DEBUG_Engine_setBodyPosX;
         private System.Windows.Forms.ToolStripMenuItem 快捷添加窗口ToolStripMenuItem;
+        private System.Windows.Forms.TrackBar tb_hertz_slider;
     }
 }
 

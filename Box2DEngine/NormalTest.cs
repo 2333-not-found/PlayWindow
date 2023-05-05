@@ -11,22 +11,18 @@ namespace Box2DEngine
     public class NormalTest
     {
         [DllImport("kernel32.dll")]
-        static extern IntPtr GetConsoleWindow();
+        public static extern IntPtr GetConsoleWindow();
 
         public FixedUpdate FixedUpdate;
         public Tumbler _tumbler;
         private readonly CancellationTokenSource _stopToken = new CancellationTokenSource();
-        public Profile MaxProfile;
-        public Profile TotalProfile;
-        public bool Pause;
-        public bool SingleStep;
 
         public void Run()
         {
             if (GetConsoleWindow() != IntPtr.Zero)
                 Console.Clear();
-            Console.WriteLine("Engine Starting!");
             Console.WriteLine("显示区域大小：" + Screen.PrimaryScreen.Bounds.Width + "x" + Screen.PrimaryScreen.Bounds.Height);
+
             _tumbler = new Tumbler();
             FixedUpdate = new FixedUpdate { UpdateCallback = Step };
             while (!_stopToken.IsCancellationRequested)
@@ -34,6 +30,12 @@ namespace Box2DEngine
                 FixedUpdate.Tick();
             }
         }
+
+#if DEBUG
+        public Profile MaxProfile;
+        public Profile TotalProfile;
+        public bool Pause;
+        public bool SingleStep;
 
         private readonly StringBuilder _sb = new StringBuilder();
 
@@ -125,9 +127,10 @@ namespace Box2DEngine
                 _sb.AppendLine($"solveTOI [ave] (max) = {p.SolveTOI} [{aveProfile.SolveTOI}] ({MaxProfile.SolveTOI})".PadRight(120));
                 _sb.AppendLine($"broad-phase [ave] (max) = {p.Broadphase} [{aveProfile.Broadphase}] ({MaxProfile.Broadphase})".PadRight(120));
 
-                //Console.Write(_sb.ToString());
-                //_sb.Clear();
+                Console.WriteLine(_sb.ToString());
+                _sb.Clear();
             }
         }
+#endif
     }
 }

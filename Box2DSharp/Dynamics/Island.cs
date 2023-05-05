@@ -471,7 +471,7 @@ namespace Box2DSharp.Dynamics
 
                 var vc = constraints[i];
 
-                var impulse = new ContactImpulse {Count = vc.PointCount};
+                var impulse = new ContactImpulse { Count = vc.PointCount };
                 for (var j = 0; j < vc.PointCount; ++j)
                 {
                     impulse.NormalImpulses[j] = vc.Points[j].NormalImpulse;

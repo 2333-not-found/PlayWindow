@@ -46,7 +46,7 @@ namespace PlayWindow
         private void btn_Add_Click(object sender, EventArgs e)
         {
             if (WDC != null)
-                WDC.NewDummy(intPtr, mh);
+                WDC.RunNewWindowAsync((IntPtr)Convert.ToInt64(tb_intPtr.Text), mh);
         }
 
         private void QuickAddForm_FormClosing(object sender, FormClosingEventArgs e)
