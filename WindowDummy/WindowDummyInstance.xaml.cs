@@ -296,14 +296,6 @@ namespace WindowDummy
                        WindowFuncs.SetWindowPos(this_intPtr, (int)intPtr_p, (int)pos.X, (int)pos.Y, 0, 0, 1 | 4 | 20);
 
                        //更新视图
-                       RotateTransform rt = new RotateTransform
-                       {
-                           Angle = body.GetAngle() * (180 / Math.PI) % 360
-                       };
-                       //WindowPic.RenderTransformOrigin = new Point(0.5, 0.5);
-                       //WindowPic.RenderTransform = rt;
-                       WindowPic.LayoutTransform = rt;
-
                        System.Drawing.Rectangle realRect = Rotate.Rotate.GetRotateRectangle(WindowPic.Source.Width, WindowPic.Source.Height, (float)(body.GetAngle() * (180 / Math.PI) % 360));
                        this.Width = realRect.Width;
                        this.Height = realRect.Height;
@@ -312,7 +304,7 @@ namespace WindowDummy
 
                        try
                        {
-                           rt = WindowPic.RenderTransform as RotateTransform;
+                           RotateTransform rt = WindowPic.RenderTransform as RotateTransform;
                            if (rt.Angle == body.GetAngle() * (180 / Math.PI) % 360)
                            {
                                return;
@@ -323,19 +315,15 @@ namespace WindowDummy
                                {
                                    Angle = body.GetAngle() * (180 / Math.PI) % 360
                                };
-                               //WindowPic.RenderTransformOrigin = new Point(0.5, 0.5);
-                               //WindowPic.RenderTransform = rt;
                                WindowPic.LayoutTransform = rt;
                            }
                        }
                        catch { }
                        {
-                           rt = new RotateTransform
+                           RotateTransform rt = new RotateTransform
                            {
                                Angle = body.GetAngle() * (180 / Math.PI) % 360
                            };
-                           //WindowPic.RenderTransformOrigin = new Point(0.5, 0.5);
-                           //WindowPic.RenderTransform = rt;
                            WindowPic.LayoutTransform = rt;
                        }
                        //Console.WriteLine(body.GetAngle() * (180 / Math.PI) % 360);
