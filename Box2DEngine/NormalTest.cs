@@ -31,7 +31,6 @@ namespace Box2DEngine
             }
         }
 
-#if DEBUG
         public Profile MaxProfile;
         public Profile TotalProfile;
         public bool Pause;
@@ -131,6 +130,5 @@ namespace Box2DEngine
                 _sb.Clear();
             }
         }
-#endif
     }
 }

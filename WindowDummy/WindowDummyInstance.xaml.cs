@@ -240,7 +240,13 @@ namespace WindowDummy
         #endregion
 
         private async void UpdateEvent(object sender, EventArgs e)
-        {
+        {/*
+           RotateTransform rt = new RotateTransform
+            {
+                Angle = body.GetAngle() * (180 / Math.PI) % 360
+            };
+            Console.WriteLine(rt.(PointFromScreen(new Point(OtherFuncs.pointDelta.X, OtherFuncs.pointDelta.Y))));
+            */
             await AnUpdate();
         }
         public async Task AnUpdate()
@@ -316,6 +322,8 @@ namespace WindowDummy
                                    Angle = body.GetAngle() * (180 / Math.PI) % 360
                                };
                                WindowPic.LayoutTransform = rt;
+                               Console.WriteLine(rt.Transform(PointFromScreen(new Point(OtherFuncs.pointDelta.X, OtherFuncs.pointDelta.Y))));
+
                            }
                        }
                        catch { }
