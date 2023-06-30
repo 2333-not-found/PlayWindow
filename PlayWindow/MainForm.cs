@@ -151,11 +151,6 @@ namespace PlayWindow
             //}
         }
 
-        private void tb_hertz_slider_Scroll(object sender, EventArgs e)
-        {
-            WDC.engine._tumbler.hertz = tb_hertz_slider.Value;
-        }
-
         #endregion
 
         #region Debug stuff
@@ -180,6 +175,16 @@ namespace PlayWindow
             WDC.engine._tumbler.RotateBody((IntPtr)Convert.ToInt32(DEBUG_tb_rotateBody.Text), (float)DEBUG_Engine_rotateBody.Value);
         }
 
+        private void DEBUG_btn_setGravity_Click(object sender, EventArgs e)
+        {
+            WDC.engine._tumbler.World.Gravity = new System.Numerics.Vector2((float)DEBUG_Engine_setGravityX.Value, (float)DEBUG_Engine_setGravityY.Value);
+        }
+
+        private void DEBUG_tb_hertz_slider_Scroll(object sender, EventArgs e)
+        {
+            WDC.engine._tumbler.hertz = DEBUG_tb_hertz_slider.Value;
+            DEBUG_label_hertz_slider.Text = DEBUG_tb_hertz_slider.Value.ToString();
+        }
         #endregion
     }
 }

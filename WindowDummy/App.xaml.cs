@@ -57,10 +57,12 @@ namespace WindowDummy
                 mh.MouseUpEvent += windowDummyInstance.OnMouseUp;
                 mh.MouseMoveEvent += windowDummyInstance.OnMouseMove;
 
+                windowDummyInstances.Add(windowDummyInstance);
                 windowDummyInstance.Closed += (d, k) =>
                 {
                     // 当窗口关闭后马上结束消息循环
                     System.Windows.Threading.Dispatcher.ExitAllFrames();
+                    windowDummyInstances.Remove(windowDummyInstance);
                 };
                 windowDummyInstance.Show();
                 // Run 方法必须调用，否则窗口一打开就会关闭
@@ -68,7 +70,6 @@ namespace WindowDummy
                 System.Windows.Threading.Dispatcher.Run();
                 // 这句话是必须的，设置Task的运算结果
                 // 但由于此处不需要结果，故用null
-                windowDummyInstances.Add(windowDummyInstance);
                 tc.SetResult(null);
             })
             {
@@ -80,8 +81,8 @@ namespace WindowDummy
             // 新线程启动后，将Task实例返回以便支持 await 操作符
             return tc.Task;
         }
-
-        public bool NewDummy(IntPtr intPtr, MouseHook.MouseHook mh)
+        
+        /*public bool NewDummy(IntPtr intPtr, MouseHook.MouseHook mh)
         {
             //检查IntPtr是否有效
             if (OtherFuncs.GetWindowBitmap(WindowFuncs.GetRoot(intPtr)) == null)
@@ -110,6 +111,6 @@ namespace WindowDummy
             thread.SetApartmentState(ApartmentState.STA);
             thread.Start();
             return true;
-        }
+        }*/
     }
 }

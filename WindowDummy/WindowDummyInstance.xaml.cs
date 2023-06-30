@@ -7,7 +7,6 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Interop;
 using System.Windows.Media;
-using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using System.Windows.Shell;
 using System.Windows.Threading;
@@ -271,8 +270,15 @@ namespace WindowDummy
 
                        //移动部分
                        UserData userData = body.UserData as UserData;//body的UserData
+                       //在世界里修改窗口及body大小
+                       var newRect = WindowFuncs.GetWindowRectangle(intPtr_p);
+                       if (newRect.Size != userData.rect.Size && WindowPic.Source != null && this.RenderSize == WindowPic.RenderSize)
+                       {
+                           tumbler.SetBodyRectangle(intPtr_p, newRect);
+                       }
                        var bodyPos = tumbler.ConvertWorldToScreen(body.GetTransform().Position);//body的位置
-                                                                                                //替代Reflection功能
+                       bodyPos.X -= (float)this.Width / 2;
+                       bodyPos.Y -= (float)this.Height / 2;
                        if (!OtherFuncs.IsDraging(intPtr_p))
                        {
                            var area = WindowFuncs.GetWindowRectangle(this_intPtr);
@@ -291,15 +297,8 @@ namespace WindowDummy
                                WindowFuncs.SetWindowPos(intPtr_p, -2, (int)bodyPos.X, (int)bodyPos.Y, 0, 0, 1 | 4 | 20);
                            }
                        }
-                       //修改窗口及body大小
-                       var newRect = WindowFuncs.GetWindowRectangle(intPtr_p);
-                       if (newRect.Size != userData.rect.Size && WindowPic.Source != null && this.RenderSize == WindowPic.RenderSize)
-                       {
-                           tumbler.SetBodyRectangle(intPtr_p, newRect);
-                       }
                        //移动此窗口
-                       var pos = tumbler.ConvertWorldToScreen(body.GetTransform().Position);
-                       WindowFuncs.SetWindowPos(this_intPtr, (int)intPtr_p, (int)pos.X, (int)pos.Y, 0, 0, 1 | 4 | 20);
+                       WindowFuncs.SetWindowPos(this_intPtr, (int)intPtr_p, (int)bodyPos.X, (int)bodyPos.Y, 0, 0, 1 | 4 | 20);
 
                        //更新视图
                        System.Drawing.Rectangle realRect = Rotate.Rotate.GetRotateRectangle(WindowPic.Source.Width, WindowPic.Source.Height, (float)(body.GetAngle() * (180 / Math.PI) % 360));
@@ -307,7 +306,6 @@ namespace WindowDummy
                        this.Height = realRect.Height;
                        WindowPic.Width = WindowPic.Source.Width;
                        WindowPic.Height = WindowPic.Source.Height;
-
                        try
                        {
                            RotateTransform rt = WindowPic.RenderTransform as RotateTransform;

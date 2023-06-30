@@ -126,7 +126,7 @@ namespace Box2DEngine
                 _sb.AppendLine($"solveTOI [ave] (max) = {p.SolveTOI} [{aveProfile.SolveTOI}] ({MaxProfile.SolveTOI})".PadRight(120));
                 _sb.AppendLine($"broad-phase [ave] (max) = {p.Broadphase} [{aveProfile.Broadphase}] ({MaxProfile.Broadphase})".PadRight(120));
 
-                Console.WriteLine(_sb.ToString());
+                //Console.WriteLine(_sb.ToString());
                 _sb.Clear();
             }
         }

@@ -51,6 +51,8 @@ namespace PlayWindow
             this.tabControlMain = new System.Windows.Forms.TabControl();
             this.tabPageDebug = new System.Windows.Forms.TabPage();
             this.DEBUG_Engine_groupBox = new System.Windows.Forms.GroupBox();
+            this.DEBUG_label_hertz_slider = new System.Windows.Forms.Label();
+            this.DEBUG_tb_hertz_slider = new System.Windows.Forms.TrackBar();
             this.DEBUG_tb_setBodyPos = new System.Windows.Forms.TextBox();
             this.DEBUG_Engine_setBodyPosLabel = new System.Windows.Forms.Label();
             this.DEBUG_Engine_setBodyPosY = new System.Windows.Forms.NumericUpDown();
@@ -66,18 +68,22 @@ namespace PlayWindow
             this.DEBUG_Engine_addImpulseX = new System.Windows.Forms.NumericUpDown();
             this.DEBUG_btn_manualGlobalUpdate = new System.Windows.Forms.Button();
             this.listRefreshTimer = new System.Windows.Forms.Timer(this.components);
-            this.tb_hertz_slider = new System.Windows.Forms.TrackBar();
+            this.DEBUG_btn_setGravity = new System.Windows.Forms.Button();
+            this.DEBUG_Engine_setGravityX = new System.Windows.Forms.NumericUpDown();
+            this.DEBUG_Engine_setGravityY = new System.Windows.Forms.NumericUpDown();
             this.contentMenuStrip.SuspendLayout();
             this.tabPageMain.SuspendLayout();
             this.tabControlMain.SuspendLayout();
             this.tabPageDebug.SuspendLayout();
             this.DEBUG_Engine_groupBox.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.DEBUG_tb_hertz_slider)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.DEBUG_Engine_setBodyPosY)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.DEBUG_Engine_setBodyPosX)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.DEBUG_Engine_rotateBody)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.DEBUG_Engine_addImpulseY)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.DEBUG_Engine_addImpulseX)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.tb_hertz_slider)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.DEBUG_Engine_setGravityX)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.DEBUG_Engine_setGravityY)).BeginInit();
             this.SuspendLayout();
             // 
             // contentMenuStrip
@@ -268,7 +274,11 @@ namespace PlayWindow
             // 
             // DEBUG_Engine_groupBox
             // 
-            this.DEBUG_Engine_groupBox.Controls.Add(this.tb_hertz_slider);
+            this.DEBUG_Engine_groupBox.Controls.Add(this.DEBUG_Engine_setGravityY);
+            this.DEBUG_Engine_groupBox.Controls.Add(this.DEBUG_Engine_setGravityX);
+            this.DEBUG_Engine_groupBox.Controls.Add(this.DEBUG_btn_setGravity);
+            this.DEBUG_Engine_groupBox.Controls.Add(this.DEBUG_label_hertz_slider);
+            this.DEBUG_Engine_groupBox.Controls.Add(this.DEBUG_tb_hertz_slider);
             this.DEBUG_Engine_groupBox.Controls.Add(this.DEBUG_tb_setBodyPos);
             this.DEBUG_Engine_groupBox.Controls.Add(this.DEBUG_Engine_setBodyPosLabel);
             this.DEBUG_Engine_groupBox.Controls.Add(this.DEBUG_Engine_setBodyPosY);
@@ -284,10 +294,30 @@ namespace PlayWindow
             this.DEBUG_Engine_groupBox.Controls.Add(this.DEBUG_Engine_addImpulseX);
             this.DEBUG_Engine_groupBox.Location = new System.Drawing.Point(8, 6);
             this.DEBUG_Engine_groupBox.Name = "DEBUG_Engine_groupBox";
-            this.DEBUG_Engine_groupBox.Size = new System.Drawing.Size(402, 161);
+            this.DEBUG_Engine_groupBox.Size = new System.Drawing.Size(402, 195);
             this.DEBUG_Engine_groupBox.TabIndex = 2;
             this.DEBUG_Engine_groupBox.TabStop = false;
             this.DEBUG_Engine_groupBox.Text = "Engine";
+            // 
+            // DEBUG_label_hertz_slider
+            // 
+            this.DEBUG_label_hertz_slider.AutoSize = true;
+            this.DEBUG_label_hertz_slider.Location = new System.Drawing.Point(6, 165);
+            this.DEBUG_label_hertz_slider.Name = "DEBUG_label_hertz_slider";
+            this.DEBUG_label_hertz_slider.Size = new System.Drawing.Size(35, 12);
+            this.DEBUG_label_hertz_slider.TabIndex = 18;
+            this.DEBUG_label_hertz_slider.Text = "hertz";
+            // 
+            // DEBUG_tb_hertz_slider
+            // 
+            this.DEBUG_tb_hertz_slider.Location = new System.Drawing.Point(6, 132);
+            this.DEBUG_tb_hertz_slider.Maximum = 120;
+            this.DEBUG_tb_hertz_slider.Minimum = 1;
+            this.DEBUG_tb_hertz_slider.Name = "DEBUG_tb_hertz_slider";
+            this.DEBUG_tb_hertz_slider.Size = new System.Drawing.Size(381, 45);
+            this.DEBUG_tb_hertz_slider.TabIndex = 17;
+            this.DEBUG_tb_hertz_slider.Value = 60;
+            this.DEBUG_tb_hertz_slider.Scroll += new System.EventHandler(this.DEBUG_tb_hertz_slider_Scroll);
             // 
             // DEBUG_tb_setBodyPos
             // 
@@ -487,16 +517,51 @@ namespace PlayWindow
             // 
             this.listRefreshTimer.Interval = 200;
             // 
-            // tb_hertz_slider
+            // DEBUG_btn_setGravity
             // 
-            this.tb_hertz_slider.Location = new System.Drawing.Point(6, 99);
-            this.tb_hertz_slider.Maximum = 120;
-            this.tb_hertz_slider.Minimum = 1;
-            this.tb_hertz_slider.Name = "tb_hertz_slider";
-            this.tb_hertz_slider.Size = new System.Drawing.Size(381, 45);
-            this.tb_hertz_slider.TabIndex = 17;
-            this.tb_hertz_slider.Value = 60;
-            this.tb_hertz_slider.Scroll += new System.EventHandler(this.tb_hertz_slider_Scroll);
+            this.DEBUG_btn_setGravity.Location = new System.Drawing.Point(6, 103);
+            this.DEBUG_btn_setGravity.Name = "DEBUG_btn_setGravity";
+            this.DEBUG_btn_setGravity.Size = new System.Drawing.Size(107, 23);
+            this.DEBUG_btn_setGravity.TabIndex = 19;
+            this.DEBUG_btn_setGravity.Text = "设置重力";
+            this.DEBUG_btn_setGravity.UseVisualStyleBackColor = true;
+            this.DEBUG_btn_setGravity.Click += new System.EventHandler(this.DEBUG_btn_setGravity_Click);
+            // 
+            // DEBUG_Engine_setGravityX
+            // 
+            this.DEBUG_Engine_setGravityX.DecimalPlaces = 3;
+            this.DEBUG_Engine_setGravityX.Location = new System.Drawing.Point(119, 104);
+            this.DEBUG_Engine_setGravityX.Maximum = new decimal(new int[] {
+            2147483647,
+            0,
+            0,
+            0});
+            this.DEBUG_Engine_setGravityX.Minimum = new decimal(new int[] {
+            2147483647,
+            0,
+            0,
+            -2147483648});
+            this.DEBUG_Engine_setGravityX.Name = "DEBUG_Engine_setGravityX";
+            this.DEBUG_Engine_setGravityX.Size = new System.Drawing.Size(132, 21);
+            this.DEBUG_Engine_setGravityX.TabIndex = 20;
+            // 
+            // DEBUG_Engine_setGravityY
+            // 
+            this.DEBUG_Engine_setGravityY.DecimalPlaces = 3;
+            this.DEBUG_Engine_setGravityY.Location = new System.Drawing.Point(257, 104);
+            this.DEBUG_Engine_setGravityY.Maximum = new decimal(new int[] {
+            2147483647,
+            0,
+            0,
+            0});
+            this.DEBUG_Engine_setGravityY.Minimum = new decimal(new int[] {
+            2147483647,
+            0,
+            0,
+            -2147483648});
+            this.DEBUG_Engine_setGravityY.Name = "DEBUG_Engine_setGravityY";
+            this.DEBUG_Engine_setGravityY.Size = new System.Drawing.Size(130, 21);
+            this.DEBUG_Engine_setGravityY.TabIndex = 21;
             // 
             // MainForm
             // 
@@ -517,12 +582,14 @@ namespace PlayWindow
             this.tabPageDebug.ResumeLayout(false);
             this.DEBUG_Engine_groupBox.ResumeLayout(false);
             this.DEBUG_Engine_groupBox.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.DEBUG_tb_hertz_slider)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.DEBUG_Engine_setBodyPosY)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.DEBUG_Engine_setBodyPosX)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.DEBUG_Engine_rotateBody)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.DEBUG_Engine_addImpulseY)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.DEBUG_Engine_addImpulseX)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.tb_hertz_slider)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.DEBUG_Engine_setGravityX)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.DEBUG_Engine_setGravityY)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -566,7 +633,11 @@ namespace PlayWindow
         private System.Windows.Forms.NumericUpDown DEBUG_Engine_setBodyPosY;
         private System.Windows.Forms.NumericUpDown DEBUG_Engine_setBodyPosX;
         private System.Windows.Forms.ToolStripMenuItem 快捷添加窗口ToolStripMenuItem;
-        private System.Windows.Forms.TrackBar tb_hertz_slider;
+        private System.Windows.Forms.TrackBar DEBUG_tb_hertz_slider;
+        private System.Windows.Forms.Label DEBUG_label_hertz_slider;
+        private System.Windows.Forms.NumericUpDown DEBUG_Engine_setGravityY;
+        private System.Windows.Forms.NumericUpDown DEBUG_Engine_setGravityX;
+        private System.Windows.Forms.Button DEBUG_btn_setGravity;
     }
 }
 
