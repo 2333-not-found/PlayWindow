@@ -19,6 +19,8 @@ namespace Box2DEngine
 
         public void Run()
         {
+            TestClass.Test();
+
             if (GetConsoleWindow() != IntPtr.Zero)
                 Console.Clear();
             Console.WriteLine("显示区域大小：" + Screen.PrimaryScreen.Bounds.Width + "x" + Screen.PrimaryScreen.Bounds.Height);
@@ -129,6 +131,111 @@ namespace Box2DEngine
                 //Console.WriteLine(_sb.ToString());
                 _sb.Clear();
             }
+        }
+    }
+
+    public class TestClass
+    {
+        [DllImport(@"Box2DWrapper.dll", EntryPoint = "Add")]
+        extern static int Add(int a, int b);
+        [DllImport(@"Box2DWrapper.dll", EntryPoint = "WriteString")]
+        extern unsafe static void WriteString(char* c);
+        [DllImport(@"Box2DWrapper.dll", EntryPoint = "AddInt")]
+        extern unsafe static void AddInt(int* i);
+        [DllImport(@"Box2DWrapper.dll", EntryPoint = "AddIntArray")]
+        extern unsafe static void AddIntArray(int* firstElement, int arraylength);
+        [DllImport(@"Box2DWrapper.dll", EntryPoint = "GetArrayFromCPP")]
+        extern unsafe static int* GetArrayFromCPP();
+
+
+
+        //定义一个委托，返回值为空，存在一个整型参数
+        public delegate void CSCallback(int tick);
+        //定义一个用于回调的方法，与前面定义的委托的原型一样
+        //该方法会被C++所调用
+        static void CSCallbackFunction(int tick)
+        {
+            Console.WriteLine(tick.ToString());
+
+        }
+        //定义一个委托类型的实例，
+        //在主程序中该委托实例将指向前面定义的CSCallbackFunction方法
+        static CSCallback callback;
+
+
+        //这里使用CSCallback委托类型来兼容C++里的CPPCallback函数指针
+        [DllImport(@"Box2DWrapper.dll", EntryPoint = "SetCallback")]
+        extern static void SetCallback(CSCallback callback);
+
+        [StructLayout(LayoutKind.Sequential)]
+        struct Vector3
+        {
+            public float X, Y, Z;
+        }
+
+        [DllImport(@"Box2DWrapper.dll", EntryPoint = "SendStructFromCSToCPP")]
+        extern static void SendStructFromCSToCPP(Vector3 vector);
+
+        public static void Test()
+        {
+            int c = Add(1, 2);
+            Console.WriteLine(c);
+            //Console.WriteLine(Environment.CurrentDirectory + Environment.NewLine);
+            //因为使用指针，因为要声明非安全域
+            unsafe
+            {
+                //在传递字符串时，将字符所在的内存固化，
+                //并取出字符数组的指针
+                fixed (char* p = &("hello".ToCharArray()[0]))
+                {
+                    //调用方法
+                    WriteString(p);
+                }
+
+            }
+            unsafe
+            {
+                // 调用C++中的AddInt方法
+                int i = 10;
+
+                AddInt(&i);
+                Console.WriteLine(i);
+
+                //调用C++中的AddIntArray方法将C#中的数据传递到C++中，并在C++中输出
+                int[] CSArray = new int[10];
+                for (int iArr = 0; iArr < 10; iArr++)
+                {
+                    CSArray[iArr] = iArr;
+                }
+                fixed (int* pCSArray = &CSArray[0])
+                {
+                    AddIntArray(pCSArray, 10);
+                }
+                //调用C++中的GetArrayFromCPP方法获取一个C++中建立的数组
+                int* pArrayPointer = null;
+                pArrayPointer = GetArrayFromCPP();
+                for (int iArr = 0; iArr < 10; iArr++)
+                {
+                    Console.WriteLine(*pArrayPointer);
+                    pArrayPointer++;
+                }
+            }
+
+
+
+
+            //让委托指向将被回调的方法
+            callback = CSCallbackFunction;
+            //将委托传递给C++
+            SetCallback(callback);
+
+            //建立一个Vector3的实例
+            Vector3 vector = new Vector3() { X = 10, Y = 20, Z = 30 };
+            //将vector传递给C++并在C++中输出
+            SendStructFromCSToCPP(vector);
+
+
+            Console.Read();
         }
     }
 }
