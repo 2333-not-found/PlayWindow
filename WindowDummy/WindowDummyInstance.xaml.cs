@@ -109,7 +109,7 @@ namespace WindowDummy
                 this_intPtr = this_intPtr,
                 rect = rect
             };
-            tumbler.AddBody(intPtr_p, new Vector2(rect.X, rect.Y), userData);
+            Tumbler.AddBody(intPtr_p, new Vector2(rect.X, rect.Y), userData);
             body = tumbler.GetBody(intPtr_p);
             WindowFuncs.ChangeOpacity(intPtr_p, 20);
 

@@ -22,10 +22,13 @@ extern "C" BOX2DWRAPPER_API int* __stdcall GetArrayFromCPP();
 typedef void(__stdcall* CPPCallback)(int tick);
 //定义一个用于设置函数指针的方法,
 //并在该函数中调用C#中传递过来的委托
-extern "C" BOX2DWRAPPER_API void __stdcall SetCallback(CPPCallback callback);
+extern "C" BOX2DWRAPPER_API void __stdcall SetCallback(CPPCallback _callback);
 
 struct Vector3
 {
-    float X, Y, Z;
+	float X, Y, Z;
 };
 extern "C" BOX2DWRAPPER_API void __stdcall SendStructFromCSToCPP(Vector3 vector);
+extern "C" BOX2DWRAPPER_API void __stdcall SendStruct(b2BodyDef body);
+extern "C" BOX2DWRAPPER_API void __stdcall RunEngine(int _screenHeight, int _screenWidth);
+extern "C" BOX2DWRAPPER_API void __stdcall AddBody(HWND intptr, b2Vec2 targetPos, b2BodyUserData * userData);

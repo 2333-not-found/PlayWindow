@@ -5,6 +5,7 @@ using Box2DSharp.Dynamics;
 using Box2DEngine.Framework;
 using System.Windows.Forms;
 using System.Runtime.InteropServices;
+using static Box2DEngine.TestClass;
 
 namespace Box2DEngine
 {
@@ -12,6 +13,15 @@ namespace Box2DEngine
     {
         [DllImport("kernel32.dll")]
         public static extern IntPtr GetConsoleWindow();
+        [DllImport("Box2DWrapper.dll", EntryPoint = "RunEngine")]
+        public extern static void RunEngine(int _screenHeight, int _screenWidth);
+        [DllImport(@"Box2DWrapper.dll", EntryPoint = "SetCallback")]
+        extern static void SetCallback(CSCallback _callback);
+        static CSCallback callback;
+        static void CSCallbackFunction(int tick)
+        {
+            GlobalEvent.Register.UpdateEventAction();
+        }
 
         public FixedUpdate FixedUpdate;
         public Tumbler _tumbler;
@@ -19,7 +29,8 @@ namespace Box2DEngine
 
         public void Run()
         {
-            TestClass.Test();
+            callback = CSCallbackFunction;
+            SetCallback(callback);
 
             if (GetConsoleWindow() != IntPtr.Zero)
                 Console.Clear();
@@ -27,6 +38,7 @@ namespace Box2DEngine
 
             _tumbler = new Tumbler();
             FixedUpdate = new FixedUpdate { UpdateCallback = Step };
+            RunEngine(Screen.PrimaryScreen.Bounds.Width, Screen.PrimaryScreen.Bounds.Height);
             while (!_stopToken.IsCancellationRequested)
             {
                 FixedUpdate.Tick();
@@ -147,8 +159,6 @@ namespace Box2DEngine
         [DllImport(@"Box2DWrapper.dll", EntryPoint = "GetArrayFromCPP")]
         extern unsafe static int* GetArrayFromCPP();
 
-
-
         //定义一个委托，返回值为空，存在一个整型参数
         public delegate void CSCallback(int tick);
         //定义一个用于回调的方法，与前面定义的委托的原型一样
@@ -156,16 +166,14 @@ namespace Box2DEngine
         static void CSCallbackFunction(int tick)
         {
             Console.WriteLine(tick.ToString());
-
         }
         //定义一个委托类型的实例，
         //在主程序中该委托实例将指向前面定义的CSCallbackFunction方法
         static CSCallback callback;
 
-
         //这里使用CSCallback委托类型来兼容C++里的CPPCallback函数指针
         [DllImport(@"Box2DWrapper.dll", EntryPoint = "SetCallback")]
-        extern static void SetCallback(CSCallback callback);
+        extern static void SetCallback(CSCallback _callback);
 
         [StructLayout(LayoutKind.Sequential)]
         struct Vector3
@@ -180,7 +188,7 @@ namespace Box2DEngine
         {
             int c = Add(1, 2);
             Console.WriteLine(c);
-            //Console.WriteLine(Environment.CurrentDirectory + Environment.NewLine);
+
             //因为使用指针，因为要声明非安全域
             unsafe
             {
@@ -221,9 +229,6 @@ namespace Box2DEngine
                 }
             }
 
-
-
-
             //让委托指向将被回调的方法
             callback = CSCallbackFunction;
             //将委托传递给C++
@@ -234,8 +239,7 @@ namespace Box2DEngine
             //将vector传递给C++并在C++中输出
             SendStructFromCSToCPP(vector);
 
-
-            Console.Read();
+            //Console.Read();
         }
     }
 }
