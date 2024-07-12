@@ -151,6 +151,15 @@ namespace PlayWindow
             //}
         }
 
+        private void 创建一个窗口ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Form form = new Form();
+            form.Width = 400;
+            form.Height = 250;
+            form.Show();
+            WDC.RunNewWindowAsync(form.Handle, mh);
+        }
+
         #endregion
 
         #region Debug stuff

@@ -109,7 +109,7 @@ namespace WindowDummy
                 this_intPtr = this_intPtr,
                 rect = rect
             };
-            tumbler.AddBody(intPtr_p, new Vector2(rect.X, rect.Y), userData);
+            Tumbler.AddBody(intPtr_p, new Vector2(rect.X, rect.Y), userData);
             body = tumbler.GetBody(intPtr_p);
             WindowFuncs.ChangeOpacity(intPtr_p, 20);
 
@@ -309,7 +309,7 @@ namespace WindowDummy
                        try
                        {
                            RotateTransform rt = WindowPic.RenderTransform as RotateTransform;
-                           if (rt.Angle == body.GetAngle() * (180 / Math.PI) % 360)
+                           if (rt.Angle == -(body.GetAngle() * (180 / Math.PI) % 360))
                            {
                                return;
                            }
@@ -317,7 +317,7 @@ namespace WindowDummy
                            {
                                rt = new RotateTransform
                                {
-                                   Angle = body.GetAngle() * (180 / Math.PI) % 360
+                                   Angle = -(body.GetAngle() * (180 / Math.PI) % 360)
                                };
                                WindowPic.LayoutTransform = rt;
                                Console.WriteLine(rt.Transform(PointFromScreen(new Point(OtherFuncs.pointDelta.X, OtherFuncs.pointDelta.Y))));
@@ -328,7 +328,7 @@ namespace WindowDummy
                        {
                            RotateTransform rt = new RotateTransform
                            {
-                               Angle = body.GetAngle() * (180 / Math.PI) % 360
+                               Angle = -(body.GetAngle() * (180 / Math.PI) % 360)
                            };
                            WindowPic.LayoutTransform = rt;
                        }

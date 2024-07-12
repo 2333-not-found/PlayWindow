@@ -51,6 +51,9 @@ namespace PlayWindow
             this.tabControlMain = new System.Windows.Forms.TabControl();
             this.tabPageDebug = new System.Windows.Forms.TabPage();
             this.DEBUG_Engine_groupBox = new System.Windows.Forms.GroupBox();
+            this.DEBUG_Engine_setGravityY = new System.Windows.Forms.NumericUpDown();
+            this.DEBUG_Engine_setGravityX = new System.Windows.Forms.NumericUpDown();
+            this.DEBUG_btn_setGravity = new System.Windows.Forms.Button();
             this.DEBUG_label_hertz_slider = new System.Windows.Forms.Label();
             this.DEBUG_tb_hertz_slider = new System.Windows.Forms.TrackBar();
             this.DEBUG_tb_setBodyPos = new System.Windows.Forms.TextBox();
@@ -68,22 +71,20 @@ namespace PlayWindow
             this.DEBUG_Engine_addImpulseX = new System.Windows.Forms.NumericUpDown();
             this.DEBUG_btn_manualGlobalUpdate = new System.Windows.Forms.Button();
             this.listRefreshTimer = new System.Windows.Forms.Timer(this.components);
-            this.DEBUG_btn_setGravity = new System.Windows.Forms.Button();
-            this.DEBUG_Engine_setGravityX = new System.Windows.Forms.NumericUpDown();
-            this.DEBUG_Engine_setGravityY = new System.Windows.Forms.NumericUpDown();
+            this.创建一个窗口ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.contentMenuStrip.SuspendLayout();
             this.tabPageMain.SuspendLayout();
             this.tabControlMain.SuspendLayout();
             this.tabPageDebug.SuspendLayout();
             this.DEBUG_Engine_groupBox.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.DEBUG_Engine_setGravityY)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.DEBUG_Engine_setGravityX)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.DEBUG_tb_hertz_slider)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.DEBUG_Engine_setBodyPosY)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.DEBUG_Engine_setBodyPosX)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.DEBUG_Engine_rotateBody)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.DEBUG_Engine_addImpulseY)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.DEBUG_Engine_addImpulseX)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.DEBUG_Engine_setGravityX)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.DEBUG_Engine_setGravityY)).BeginInit();
             this.SuspendLayout();
             // 
             // contentMenuStrip
@@ -99,7 +100,8 @@ namespace PlayWindow
             // 菜单ToolStripMenuItem
             // 
             this.菜单ToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.快捷添加窗口ToolStripMenuItem});
+            this.快捷添加窗口ToolStripMenuItem,
+            this.创建一个窗口ToolStripMenuItem});
             this.菜单ToolStripMenuItem.Name = "菜单ToolStripMenuItem";
             this.菜单ToolStripMenuItem.Size = new System.Drawing.Size(64, 21);
             this.菜单ToolStripMenuItem.Text = "菜单(&M)";
@@ -107,7 +109,7 @@ namespace PlayWindow
             // 快捷添加窗口ToolStripMenuItem
             // 
             this.快捷添加窗口ToolStripMenuItem.Name = "快捷添加窗口ToolStripMenuItem";
-            this.快捷添加窗口ToolStripMenuItem.Size = new System.Drawing.Size(148, 22);
+            this.快捷添加窗口ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.快捷添加窗口ToolStripMenuItem.Text = "快捷添加窗口";
             this.快捷添加窗口ToolStripMenuItem.Click += new System.EventHandler(this.快捷添加窗口ToolStripMenuItem_Click);
             // 
@@ -298,6 +300,52 @@ namespace PlayWindow
             this.DEBUG_Engine_groupBox.TabIndex = 2;
             this.DEBUG_Engine_groupBox.TabStop = false;
             this.DEBUG_Engine_groupBox.Text = "Engine";
+            // 
+            // DEBUG_Engine_setGravityY
+            // 
+            this.DEBUG_Engine_setGravityY.DecimalPlaces = 3;
+            this.DEBUG_Engine_setGravityY.Location = new System.Drawing.Point(257, 104);
+            this.DEBUG_Engine_setGravityY.Maximum = new decimal(new int[] {
+            2147483647,
+            0,
+            0,
+            0});
+            this.DEBUG_Engine_setGravityY.Minimum = new decimal(new int[] {
+            2147483647,
+            0,
+            0,
+            -2147483648});
+            this.DEBUG_Engine_setGravityY.Name = "DEBUG_Engine_setGravityY";
+            this.DEBUG_Engine_setGravityY.Size = new System.Drawing.Size(130, 21);
+            this.DEBUG_Engine_setGravityY.TabIndex = 21;
+            // 
+            // DEBUG_Engine_setGravityX
+            // 
+            this.DEBUG_Engine_setGravityX.DecimalPlaces = 3;
+            this.DEBUG_Engine_setGravityX.Location = new System.Drawing.Point(119, 104);
+            this.DEBUG_Engine_setGravityX.Maximum = new decimal(new int[] {
+            2147483647,
+            0,
+            0,
+            0});
+            this.DEBUG_Engine_setGravityX.Minimum = new decimal(new int[] {
+            2147483647,
+            0,
+            0,
+            -2147483648});
+            this.DEBUG_Engine_setGravityX.Name = "DEBUG_Engine_setGravityX";
+            this.DEBUG_Engine_setGravityX.Size = new System.Drawing.Size(132, 21);
+            this.DEBUG_Engine_setGravityX.TabIndex = 20;
+            // 
+            // DEBUG_btn_setGravity
+            // 
+            this.DEBUG_btn_setGravity.Location = new System.Drawing.Point(6, 103);
+            this.DEBUG_btn_setGravity.Name = "DEBUG_btn_setGravity";
+            this.DEBUG_btn_setGravity.Size = new System.Drawing.Size(107, 23);
+            this.DEBUG_btn_setGravity.TabIndex = 19;
+            this.DEBUG_btn_setGravity.Text = "设置重力";
+            this.DEBUG_btn_setGravity.UseVisualStyleBackColor = true;
+            this.DEBUG_btn_setGravity.Click += new System.EventHandler(this.DEBUG_btn_setGravity_Click);
             // 
             // DEBUG_label_hertz_slider
             // 
@@ -517,51 +565,12 @@ namespace PlayWindow
             // 
             this.listRefreshTimer.Interval = 200;
             // 
-            // DEBUG_btn_setGravity
+            // 创建一个窗口ToolStripMenuItem
             // 
-            this.DEBUG_btn_setGravity.Location = new System.Drawing.Point(6, 103);
-            this.DEBUG_btn_setGravity.Name = "DEBUG_btn_setGravity";
-            this.DEBUG_btn_setGravity.Size = new System.Drawing.Size(107, 23);
-            this.DEBUG_btn_setGravity.TabIndex = 19;
-            this.DEBUG_btn_setGravity.Text = "设置重力";
-            this.DEBUG_btn_setGravity.UseVisualStyleBackColor = true;
-            this.DEBUG_btn_setGravity.Click += new System.EventHandler(this.DEBUG_btn_setGravity_Click);
-            // 
-            // DEBUG_Engine_setGravityX
-            // 
-            this.DEBUG_Engine_setGravityX.DecimalPlaces = 3;
-            this.DEBUG_Engine_setGravityX.Location = new System.Drawing.Point(119, 104);
-            this.DEBUG_Engine_setGravityX.Maximum = new decimal(new int[] {
-            2147483647,
-            0,
-            0,
-            0});
-            this.DEBUG_Engine_setGravityX.Minimum = new decimal(new int[] {
-            2147483647,
-            0,
-            0,
-            -2147483648});
-            this.DEBUG_Engine_setGravityX.Name = "DEBUG_Engine_setGravityX";
-            this.DEBUG_Engine_setGravityX.Size = new System.Drawing.Size(132, 21);
-            this.DEBUG_Engine_setGravityX.TabIndex = 20;
-            // 
-            // DEBUG_Engine_setGravityY
-            // 
-            this.DEBUG_Engine_setGravityY.DecimalPlaces = 3;
-            this.DEBUG_Engine_setGravityY.Location = new System.Drawing.Point(257, 104);
-            this.DEBUG_Engine_setGravityY.Maximum = new decimal(new int[] {
-            2147483647,
-            0,
-            0,
-            0});
-            this.DEBUG_Engine_setGravityY.Minimum = new decimal(new int[] {
-            2147483647,
-            0,
-            0,
-            -2147483648});
-            this.DEBUG_Engine_setGravityY.Name = "DEBUG_Engine_setGravityY";
-            this.DEBUG_Engine_setGravityY.Size = new System.Drawing.Size(130, 21);
-            this.DEBUG_Engine_setGravityY.TabIndex = 21;
+            this.创建一个窗口ToolStripMenuItem.Name = "创建一个窗口ToolStripMenuItem";
+            this.创建一个窗口ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.创建一个窗口ToolStripMenuItem.Text = "创建一个窗口";
+            this.创建一个窗口ToolStripMenuItem.Click += new System.EventHandler(this.创建一个窗口ToolStripMenuItem_Click);
             // 
             // MainForm
             // 
@@ -582,14 +591,14 @@ namespace PlayWindow
             this.tabPageDebug.ResumeLayout(false);
             this.DEBUG_Engine_groupBox.ResumeLayout(false);
             this.DEBUG_Engine_groupBox.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.DEBUG_Engine_setGravityY)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.DEBUG_Engine_setGravityX)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.DEBUG_tb_hertz_slider)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.DEBUG_Engine_setBodyPosY)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.DEBUG_Engine_setBodyPosX)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.DEBUG_Engine_rotateBody)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.DEBUG_Engine_addImpulseY)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.DEBUG_Engine_addImpulseX)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.DEBUG_Engine_setGravityX)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.DEBUG_Engine_setGravityY)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -638,6 +647,7 @@ namespace PlayWindow
         private System.Windows.Forms.NumericUpDown DEBUG_Engine_setGravityY;
         private System.Windows.Forms.NumericUpDown DEBUG_Engine_setGravityX;
         private System.Windows.Forms.Button DEBUG_btn_setGravity;
+        private System.Windows.Forms.ToolStripMenuItem 创建一个窗口ToolStripMenuItem;
     }
 }
 

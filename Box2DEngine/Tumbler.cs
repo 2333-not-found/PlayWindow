@@ -5,6 +5,7 @@ using Box2DSharp.Collision.Shapes;
 using Box2DSharp.Dynamics;
 using WindowControl;
 using System.Drawing;
+using System.Runtime.InteropServices;
 
 namespace Box2DEngine
 {
@@ -14,20 +15,21 @@ namespace Box2DEngine
         public IntPtr this_intPtr;//Dummy的IntPtr
         public Rectangle rect;//保存的的窗口矩形
     }
-
     public class Tumbler
     {
         public World World;
+        public float hertz = 60f;
         public int velocityIterations = 8;
         public int positionIterations = 3;
-        public float hertz = 60f;
-        public Body body;
         public float PIXEL_TO_METER = 100f;
 
         readonly int screenHeight = Screen.PrimaryScreen.Bounds.Height;//获取含任务栏的屏幕大小
         readonly int screenWidth = Screen.PrimaryScreen.Bounds.Width;
         //readonly int screenHeight = SystemInformation.WorkingArea.Width;//获取不含任务栏的屏幕大小
         //readonly int screenWidth = SystemInformation.WorkingArea.Height;
+
+        [DllImport(@"Box2DWrapper.dll", EntryPoint = "AddBody")]
+        public unsafe extern static void AddBody(IntPtr intptr, Vector2 targetpos, UserData userData);
 
         public Tumbler()
         {
@@ -60,9 +62,10 @@ namespace Box2DEngine
         {
             World.Step(1 / hertz, velocityIterations, positionIterations);
 
-            GlobalEvent.Register.UpdateEventAction();
+            //GlobalEvent.Register.UpdateEventAction();
+            //SendStruct(body);
         }
-
+        /*
         public void AddBody(IntPtr intPtr, Vector2 targetPos = new Vector2(), object UserData = null)
         {
             Rectangle rect = WindowFuncs.GetWindowRectangle(intPtr);
@@ -80,12 +83,13 @@ namespace Box2DEngine
             fixtureDef.RestitutionThreshold = 80.0f;
             fixtureDef.Density = 1.0f;
             shape.SetAsBox(rect.Width / 2 / PIXEL_TO_METER, rect.Height / 2 / PIXEL_TO_METER);
+            Body body;
             body = World.CreateBody(bodyDef);
             body.CreateFixture(fixtureDef);
             body.BodyType = BodyType.DynamicBody;
             body.UserData = UserData;
             body.SetTransform(new Vector2(rect.X / PIXEL_TO_METER, rect.Y / PIXEL_TO_METER), 0);
-        }
+        }*/
 
         public void AddImpulse(IntPtr target, Vector2 impulse)
         {
