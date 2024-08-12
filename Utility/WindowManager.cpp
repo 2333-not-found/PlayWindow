@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "WindowManager.h"
+#include <windows.h>
 #include <thread>
 
 class WindowsApi {

@@ -217,9 +217,6 @@
     <ProjectReference Include="..\box2d\box2d.vcxproj">
       <Project>{633f0c51-c0a4-4c6f-b0e8-6315e5db6c45}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\D3DRender\D3DRender.vcxproj">
-      <Project>{1002bfa5-ab20-4dd8-a894-e67665bdd8e1}</Project>
-    </ProjectReference>
     <ProjectReference Include="..\Utility\Utility.vcxproj">
       <Project>{ed2c6dd4-fb19-4a98-9758-df8f1417581b}</Project>
     </ProjectReference>

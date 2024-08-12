@@ -48,7 +48,7 @@ BEGIN_MESSAGE_MAP(CPlayWindowDlg, CDialogEx)
 	ON_BN_CLICKED(IDOK, &CPlayWindowDlg::OnBnClickedOk)
 	ON_NOTIFY(TCN_SELCHANGE, IDC_TAB1, &CPlayWindowDlg::OnTcnSelchangeTab1)
 END_MESSAGE_MAP()
-CPlayWindowDlg* pDlg;// https://www.cnblogs.com/oucsheep/p/9236717.html MFC 不同窗体之间变量调用
+CPlayWindowDlg* pDlg;
 BOOL CPlayWindowDlg::OnInitDialog()
 {
 	CDialogEx::OnInitDialog();
@@ -74,10 +74,6 @@ BOOL CPlayWindowDlg::OnInitDialog()
 	// TODO: 在此添加额外的初始化代码
 	pDlg = this;
 	wm.myWorld->Start();
-	int iWidth = 1024;
-	int iHeight = 768;
-	render = D3DRender{ AfxGetApp()->m_hInstance, iWidth, iHeight };
-	//render.StartRenderer();
 
 	//获取tab control位置和大小
 	CRect tabRect, itemRect;

@@ -1,5 +1,4 @@
 ﻿#pragma once
-#include "..\D3DRender\D3DRender.h"
 #include "..\Utility\WindowManager.h"
 #include "MainWindowTab1.h"
 #include "MainWindowTab2.h"
@@ -34,7 +33,6 @@ public:
 	afx_msg void OnBnClickedOk();
 	afx_msg void OnBnClickedCancel();
 	WindowManager wm;
-	D3DRender render{ AfxGetApp()->m_hInstance, 0, 0 };
 
 	CTabCtrl TAB_ControlPanel;
 	MainWindowTab1 TAB_ControlPanel1;
