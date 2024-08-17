@@ -25,4 +25,5 @@ public:
 
 	//CPlayWindowDlg* pDlg = nullptr;
 	afx_msg void OnBnClickedAddimpulse();
+	afx_msg void OnBnClickedSetrotation();
 };

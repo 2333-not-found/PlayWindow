@@ -1,6 +1,4 @@
-﻿#include "pch.h"
-#include "afxdialogex.h"
-#include "framework.h"
+﻿#include "afxdialogex.h"
 #include "PlayWindow.h"
 #include "PlayWindowDlg.h"
 #include "windows.h"
@@ -73,7 +71,6 @@ BOOL CPlayWindowDlg::OnInitDialog()
 
 	// TODO: 在此添加额外的初始化代码
 	pDlg = this;
-	wm.myWorld->Start();
 
 	//获取tab control位置和大小
 	CRect tabRect, itemRect;

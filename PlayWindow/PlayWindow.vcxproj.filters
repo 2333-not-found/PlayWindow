@@ -21,16 +21,10 @@
     <ClInclude Include="PlayWindowDlg.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="framework.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="targetver.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="Resource.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="pch.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="MainWindowTab1.h">
@@ -39,15 +33,15 @@
     <ClInclude Include="MainWindowTab2.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="framework.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="PlayWindow.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="PlayWindowDlg.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="pch.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="MainWindowTab1.cpp">

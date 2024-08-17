@@ -1,5 +1,4 @@
-﻿#include "pch.h"
-#include "afxdialogex.h"
+﻿#include "afxdialogex.h"
 #include "MainWindowTab1.h"
 #include "PlayWindow.h"
 #include "PlayWindowDlg.h"

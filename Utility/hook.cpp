@@ -1,4 +1,3 @@
-#include "pch.h"
 #include "hook.h"
 int Hook::Messsages() {
 	while (msg.message != WM_QUIT) { //while we do not close our application

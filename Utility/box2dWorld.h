@@ -11,8 +11,9 @@ public:
 		int intPtr_p;//根窗口的IntPtr
 		RECT rect;//保存的的窗口矩形大小
 	};
-	Box2DWorld();
+	Box2DWorld(int iWidth, int iHeight);
 	b2World* world;
+	b2Body* wallBody;
 	bool paused;
 	static const b2Vec2 ConvertScreenToWorld(b2Vec2 screenPoint);
 	static const b2Vec2 ConvertWorldToScreen(b2Vec2 worldPoint);
@@ -20,10 +21,9 @@ public:
 	b2Body* GetBody(int target);
 	bool AddImpulse(int target, b2Vec2 impulse);
 	bool SetBodyPos(int target, b2Vec2 pos);
-	bool RotateBody(int target, float angle);
+	bool SetBodyRotation(int target, float angle);
 	RECT GetBodyRectangle(intptr_t target);
 	bool SetBodyRectangle(intptr_t target, RECT rect);
-	void Start();
 	void Update();
 	~Box2DWorld();
 };

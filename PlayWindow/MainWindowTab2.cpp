@@ -1,5 +1,4 @@
-﻿#include "pch.h"
-#include "afxdialogex.h"
+﻿#include "afxdialogex.h"
 #include "MainWindowTab2.h"
 #include "PlayWindow.h"
 #include "PlayWindowDlg.h"
@@ -25,6 +24,7 @@ void MainWindowTab2::DoDataExchange(CDataExchange* pDX)
 BEGIN_MESSAGE_MAP(MainWindowTab2, CDialogEx)
 	ON_BN_CLICKED(BTN_SetPos, &MainWindowTab2::OnBnClickedSetpos)
 	ON_BN_CLICKED(BTN_AddImpulse, &MainWindowTab2::OnBnClickedAddimpulse)
+	ON_BN_CLICKED(BTN_SetRotation, &MainWindowTab2::OnBnClickedSetrotation)
 END_MESSAGE_MAP()
 
 void MainWindowTab2::OnBnClickedSetpos()
@@ -43,4 +43,12 @@ void MainWindowTab2::OnBnClickedAddimpulse()
 	GetDlgItem(EDIT_AddImpulse_X)->GetWindowTextW(_x);
 	GetDlgItem(EDIT_AddImpulse_Y)->GetWindowTextW(_y);
 	pDlg->wm.myWorld->AddImpulse(_ttoi(str), { (float)_ttoi(_x),(float)_ttoi(_y) });;
+}
+
+void MainWindowTab2::OnBnClickedSetrotation()
+{
+	CString str, rad;
+	GetDlgItem(EDIT_SetRotation_WindowHandle)->GetWindowTextW(str);
+	GetDlgItem(EDIT_SetRotation_Radian)->GetWindowTextW(rad);
+	pDlg->wm.myWorld->SetBodyRotation(_ttoi(str), (float)_ttoi(rad));;
 }
