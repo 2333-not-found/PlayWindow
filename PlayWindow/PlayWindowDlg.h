@@ -39,4 +39,5 @@ public:
 	MainWindowTab2 TAB_ControlPanel2;
 	CDialog* TAB_ControlPanel_Sum[5];
 	afx_msg void OnTcnSelchangeTab1(NMHDR* pNMHDR, LRESULT* pResult);
+	afx_msg void OnBnClickedQuickadd();
 };

@@ -45,6 +45,7 @@ BEGIN_MESSAGE_MAP(CPlayWindowDlg, CDialogEx)
 	ON_WM_QUERYDRAGICON()
 	ON_BN_CLICKED(IDOK, &CPlayWindowDlg::OnBnClickedOk)
 	ON_NOTIFY(TCN_SELCHANGE, IDC_TAB1, &CPlayWindowDlg::OnTcnSelchangeTab1)
+	ON_BN_CLICKED(BTN_QuickAdd, &CPlayWindowDlg::OnBnClickedQuickadd)
 END_MESSAGE_MAP()
 CPlayWindowDlg* pDlg;
 BOOL CPlayWindowDlg::OnInitDialog()
@@ -144,6 +145,28 @@ void CPlayWindowDlg::OnPaint()
 HCURSOR CPlayWindowDlg::OnQueryDragIcon()
 {
 	return static_cast<HCURSOR>(m_hIcon);
+}
+
+static void QuickAddMethod() {
+	pDlg->GetDlgItem(BTN_QuickAdd)->EnableWindow(0);
+	int seconds = 5;
+	CString str;
+	for (int i = seconds; i >= 0; i--)
+	{
+		std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+		str.Format(_T("%d"), i);
+		pDlg->GetDlgItem(BTN_QuickAdd)->SetWindowText(str);
+	}
+	HWND hwnd = WindowsApi::GetHandleFromCursor(true);
+	str.Format(_T("%p"), hwnd);
+	pDlg->wm.AddNewWindow(hwnd);
+	pDlg->GetDlgItem(BTN_QuickAdd)->EnableWindow(1);
+	pDlg->GetDlgItem(BTN_QuickAdd)->SetWindowText(str);
+}
+void CPlayWindowDlg::OnBnClickedQuickadd()
+{
+	std::thread oneThread(&QuickAddMethod);
+	oneThread.detach();
 }
 
 void CPlayWindowDlg::OnBnClickedOk()

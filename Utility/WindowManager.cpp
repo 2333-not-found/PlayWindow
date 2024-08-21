@@ -8,7 +8,6 @@ int screenHeight = 768;
 D2DRender* render = NULL;
 LRESULT WINAPI MyMouseCallback(int nCode, WPARAM wParam, LPARAM lParam); //callback declaration
 LRESULT WINAPI MyKeyBoardCallback(int nCode, WPARAM wParam, LPARAM lParam);
-b2MouseJoint* m_mouseJoint = NULL;
 class QueryCallback : public b2QueryCallback
 {
 public:
@@ -62,6 +61,10 @@ WindowManager::WindowManager()
 	std::thread updateThread(&WindowManager::Update, this);
 	updateThread.detach();
 }
+b2MouseJoint* m_mouseJoint = NULL;
+b2Vec2 m_mouseWorld = { 0,0 };
+QueryCallback callback(b2Vec2{ 0,0 });
+bool isLeftMouseDown = false;
 void WindowManager::Update() {
 	while (42) {
 		if (myWorld->paused == false)
@@ -73,6 +76,12 @@ void WindowManager::Update() {
 				HWND hwnd = (HWND)pair.first;
 				RECT rect;
 				GetWindowRect(hwnd, &rect);
+				//判断窗口大小是否改变
+				if (pair.second.rect.right - pair.second.rect.left != rect.right - rect.left ||
+					pair.second.rect.bottom - pair.second.rect.top != rect.bottom - rect.top) {
+					//窗口大小改变，更新物理体的位置角度
+					myWorld->SetBodyRectangle((uintptr_t)hwnd, rect);
+				}
 				pair.second.rect = rect;
 				b2Body* body = myWorld->GetBody(pair.first);
 				pair.second.angle = body->GetAngle();
@@ -81,7 +90,7 @@ void WindowManager::Update() {
 				pos.y -= (rect.bottom - rect.top) / 2.0f;
 				SetWindowPos(hwnd, 0, pos.x, pos.y, 0, 0, SWP_NOSIZE | SWP_NOZORDER | SWP_SHOWWINDOW);
 				myWorld->paused = false;
-				std::cout << IsDraging(hwnd) << std::endl;
+				//std::cout << IsDraging(hwnd) << std::endl;
 				//std::cout << pair.second.angle << std::endl;
 
 				if (IsDraging(hwnd) == true && m_mouseJoint == NULL) {
@@ -90,15 +99,15 @@ void WindowManager::Update() {
 					b2Vec2 d = { 0.001f, 0.001f };
 					POINT cursorPos;
 					GetCursorPos(&cursorPos);
-					b2Vec2 p = Box2DWorld::ConvertScreenToWorld({ (float)cursorPos.x, (float)cursorPos.y });
-					aabb.lowerBound = p - d;
-					aabb.upperBound = p + d;
+					m_mouseWorld = Box2DWorld::ConvertScreenToWorld({ (float)cursorPos.x, (float)cursorPos.y });
+					aabb.lowerBound = m_mouseWorld - d;
+					aabb.upperBound = m_mouseWorld + d;
 
 					// 查询世界中与包围盒重叠的形状
-					QueryCallback callback(p);
+					callback = QueryCallback(m_mouseWorld);
 					myWorld->world->QueryAABB(&callback, aabb);
 
-					if (callback.m_fixture)
+					if (callback.m_fixture!= NULL)
 					{
 						// 设置鼠标关节的参数
 						float frequencyHz = 5.0f; // 频率
@@ -108,30 +117,33 @@ void WindowManager::Update() {
 						b2MouseJointDef jd;
 						jd.bodyA = myWorld->wallBody; // 地面物体
 						jd.bodyB = body; // 被拖动的物体
-						jd.target = p; // 目标位置
+						jd.target = m_mouseWorld; // 目标位置
 						jd.maxForce = 1000.0f * body->GetMass(); // 最大力
-						b2LinearStiffness(jd.stiffness, jd.damping, frequencyHz, dampingRatio, jd.bodyA, jd.bodyB); // 线性刚度
-
-						// 创建鼠标关节
-						m_mouseJoint = (b2MouseJoint*)myWorld->world->CreateJoint(&jd);
+						b2LinearStiffness(jd.stiffness, jd.damping, frequencyHz, dampingRatio, jd.bodyA, jd.bodyB); // 线性刚度						
+						m_mouseJoint = (b2MouseJoint*)myWorld->world->CreateJoint(&jd);// 创建鼠标关节
 						body->SetAwake(true); // 确保物体是激活状态
 					}
 				}
-				else if (m_mouseJoint != NULL) {
-					myWorld->world->DestroyJoint(m_mouseJoint);
-					m_mouseJoint = NULL;
-				}
 			}
+			if (isLeftMouseDown == false && m_mouseJoint != NULL) {
+				myWorld->world->DestroyJoint(m_mouseJoint);
+				m_mouseJoint = NULL;
+			}
+
 			render->Update(WindowManager::windowQueue);
 		}
 	}
 }
 
 bool WindowManager::AddNewWindow(HWND handle) {
+	handle = GetAncestor(handle, GA_ROOT);
 	// 尝试截图
-	if (WindowsApi::CaptureWindow(handle) == NULL)
+	if (WindowsApi::CaptureWindowByBitblt(handle) == NULL)
 		return false;
 	SetWindowPos(handle, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_SHOWWINDOW);
+	//设置窗口透明度
+	SetWindowLong(handle, GWL_EXSTYLE, GetWindowLong(handle, GWL_EXSTYLE) | WS_EX_LAYERED);
+	SetLayeredWindowAttributes(handle, 0, 50, LWA_ALPHA);
 	myWorld->paused = true;
 	WindowManager::WindowData data{};
 	data.angle = 0;
@@ -141,7 +153,6 @@ bool WindowManager::AddNewWindow(HWND handle) {
 	myWorld->CreateBody(handle, (uintptr_t)handle, { 0,0 });
 	myWorld->paused = false;
 }
-bool isLeftMouseDown = false;
 bool WindowManager::IsDraging(HWND handle) {
 	if (GetParent(WindowsApi::GetHandleFromCursor(true)) == NULL) {
 		if (GetForegroundWindow() == handle) {
@@ -177,39 +188,27 @@ static LRESULT WINAPI MyMouseCallback(int nCode, WPARAM wParam, LPARAM lParam) {
 		switch (wParam) {
 		case WM_LBUTTONUP: {
 			isLeftMouseDown = false;
-			printf_s("LEFT CLICK UP\n");
 		}break;
 		case WM_LBUTTONDOWN: {
 			isLeftMouseDown = true;
-			printf_s("LEFT CLICK DOWN\n");
 		}break;
 		case WM_RBUTTONUP: {
-			printf_s("RIGHT CLICK UP\n");
 		}break;
 		case WM_RBUTTONDOWN: {
-			printf_s("RIGHT CLICK DOWN\n");
 		}break;
 		case WM_MOUSEMOVE: {
-			printf_s("MOUSE MOVE\n");
-			if (m_mouseJoint != NULL) {
-				// 直接从 lParam 获取鼠标位置
-				POINTS pts = MAKEPOINTS(lParam);
-				b2Vec2 p = Box2DWorld::ConvertScreenToWorld({ (float)pts.x, (float)pts.y });
+			if (m_mouseJoint != NULL && pMouseStruct != NULL) {
+				b2Vec2 p = Box2DWorld::ConvertScreenToWorld({ (float)pMouseStruct->pt.x, (float)pMouseStruct->pt.y });
+				m_mouseWorld = p;
 				m_mouseJoint->SetTarget(p);
 			}
 			break;
 		}
 		case WM_CHAR: {
-			printf_s("%c", (TCHAR)wParam);
+			//printf_s("%c", (TCHAR)wParam);
 		}break;
 		}
 	}
-	/*
-	Every time that the nCode is less than 0 we need to CallNextHookEx:
-	-> Pass to the next hook
-	MSDN: Calling CallNextHookEx is optional, but it is highly recommended;
-	otherwise, other applications that have installed hooks will not receive hook notifications and may behave incorrectly as a result.
-	*/
 	return CallNextHookEx(Hook::Instance().hook, nCode, wParam, lParam);
 }
 
@@ -221,15 +220,13 @@ static LRESULT WINAPI MyKeyBoardCallback(int nCode, WPARAM wParam, LPARAM lParam
 	{
 		if (pKeyStruct)
 		{
-			printf_s("Virtual Key Code: %d \n", pKeyStruct->vkCode);
+			//printf_s("Virtual Key Code: %d \n", pKeyStruct->vkCode);
 		}
 		switch (wParam)
 		{
 		case WM_KEYDOWN: {
-			printf_s("Sys Key\n");
 		}break;
 		case WM_SYSKEYDOWN: {
-			printf_s("Not Sys Key\n");
 		}break;
 		}
 	}

@@ -13,7 +13,6 @@
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 
 ID2D1Factory* pD2DFactory = NULL;
-ID2D1HwndRenderTarget* pRenderTarget = NULL;
 ID2D1Bitmap* pBitmap = NULL;
 IWICImagingFactory* pWICFactory = NULL;
 HBITMAP hBitmap = NULL;
@@ -37,7 +36,7 @@ D2DRender::D2DRender(HINSTANCE hInstance, int iWidth, int iHeight, int nCmdShow)
 		0,                              // Optional window styles.
 		CLASS_NAME,                     // Window class
 		L"Direct2D and WIC Example",    // Window text
-		WS_OVERLAPPEDWINDOW,            // Window style
+		WS_POPUP,						// Window style
 
 		// Size and position
 		CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
@@ -72,6 +71,7 @@ D2DRender::D2DRender(HINSTANCE hInstance, int iWidth, int iHeight, int nCmdShow)
 	}
 }
 
+ID2D1HwndRenderTarget* pRenderTarget = NULL;
 void D2DRender::Update(const std::unordered_map< uintptr_t, WindowManager::WindowData > windowMap)
 {
 	HRESULT hr = S_OK;
@@ -96,7 +96,7 @@ void D2DRender::Update(const std::unordered_map< uintptr_t, WindowManager::Windo
 			for (const auto& pair : windowMap)
 			{
 				const WindowManager::WindowData& windowData = pair.second;
-				HBITMAP hBitmap = WindowsApi::CaptureWindow(windowData.handle);
+				HBITMAP hBitmap = WindowsApi::CaptureWindowByPrintWindow(windowData.handle);
 				if (!hBitmap)
 				{
 					MessageBox(hWnd, L"Failed to capture window bitmap", L"Error", MB_OK);
@@ -115,33 +115,25 @@ void D2DRender::Update(const std::unordered_map< uintptr_t, WindowManager::Windo
 
 				if (pBitmap)
 				{
-// 获取窗口矩形
-RECT rect;
-GetWindowRect(windowData.handle, &rect);
+					// 获取窗口矩形
+					RECT rect;
+					GetWindowRect(windowData.handle, &rect);
 
-// 获取位图大小
-D2D1_SIZE_F bitmapSize = pBitmap->GetSize();
-D2D1_POINT_2F center = D2D1::Point2F(bitmapSize.width / 2.0f, bitmapSize.height / 2.0f);
+					// 获取位图大小
+					D2D1_SIZE_F bitmapSize = pBitmap->GetSize();
+					D2D1_POINT_2F center = D2D1::Point2F((rect.left + rect.right) / 2.0f, (rect.top + rect.bottom) / 2.0f);
 
-// 计算原始矩形的中心点
-float centerX = (rect.left + rect.right) / 2.0f;
-float centerY = (rect.top + rect.bottom) / 2.0f;
+					// 创建旋转矩阵，以位图中心为旋转中心
+					D2D1::Matrix3x2F rotationMatrix = D2D1::Matrix3x2F::Rotation(pair.second.angle * (180 / M_PI), center);
 
-// 创建旋转矩阵，以位图中心为旋转中心
-D2D1::Matrix3x2F rotationMatrix = D2D1::Matrix3x2F::Rotation(pair.second.angle * (180 / M_PI), center);
+					// 应用组合变换矩阵
+					pRenderTarget->SetTransform(rotationMatrix);
 
-// 创建平移矩阵，将位图中心对齐到原始矩形的中心
-D2D1::Matrix3x2F translationMatrix = D2D1::Matrix3x2F::Translation(centerX - center.x, centerY - center.y);
+					// 使用原始矩形的左上角和右下角坐标来绘制位图
+					pRenderTarget->DrawBitmap(pBitmap, D2D1::RectF(rect.left, rect.top, rect.right, rect.bottom));
 
-// 应用组合变换矩阵
-pRenderTarget->SetTransform(rotationMatrix * translationMatrix);
-
-// 使用原始矩形的左上角和右下角坐标来绘制位图
-pRenderTarget->DrawBitmap(pBitmap, D2D1::RectF(rect.left, rect.top, rect.right, rect.bottom));
-
-// 重置变换矩阵
-pRenderTarget->SetTransform(D2D1::Matrix3x2F::Identity());
-
+					// 重置变换矩阵
+					pRenderTarget->SetTransform(D2D1::Matrix3x2F::Identity());
 
 					pBitmap->Release();
 				}
