@@ -158,7 +158,7 @@ static void QuickAddMethod() {
 		pDlg->GetDlgItem(BTN_QuickAdd)->SetWindowText(str);
 	}
 	HWND hwnd = WindowsApi::GetHandleFromCursor(true);
-	str.Format(_T("%p"), hwnd);
+	str.Format(_T("%d"), (int)hwnd);
 	pDlg->wm.AddNewWindow(hwnd);
 	pDlg->GetDlgItem(BTN_QuickAdd)->EnableWindow(1);
 	pDlg->GetDlgItem(BTN_QuickAdd)->SetWindowText(str);

@@ -4,7 +4,6 @@
 #include <thread>
 #include <wincodec.h>
 #include <windows.h>
-#define M_PI 3.14159265358979323846
 #define SAFE_RELEASE(p) { if(p) { (p)->Release(); (p) = NULL; } }
 
 #pragma comment(lib, "d2d1.lib")
@@ -15,6 +14,7 @@ LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 ID2D1Factory* pD2DFactory = NULL;
 ID2D1Bitmap* pBitmap = NULL;
 IWICImagingFactory* pWICFactory = NULL;
+ID2D1HwndRenderTarget* pRenderTarget = NULL;
 HBITMAP hBitmap = NULL;
 int nFrameCount = 0;
 HWND hWnd = NULL;
@@ -54,13 +54,6 @@ D2DRender::D2DRender(HINSTANCE hInstance, int iWidth, int iHeight, int nCmdShow)
 	hWnd = hwnd;
 	ShowWindow(hwnd, nCmdShow);
 
-	// 设置窗口为分层窗口
-	SetWindowLong(hwnd, GWL_EXSTYLE, GetWindowLong(hwnd, GWL_EXSTYLE) | WS_EX_LAYERED);
-	// 设置窗口背景色透明
-	SetLayeredWindowAttributes(hwnd, RGB(0, 0, 0), 0, LWA_COLORKEY);
-	// 设置窗口置顶
-	SetWindowPos(hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
-
 	return;
 
 	MSG msg = { };
@@ -71,7 +64,6 @@ D2DRender::D2DRender(HINSTANCE hInstance, int iWidth, int iHeight, int nCmdShow)
 	}
 }
 
-ID2D1HwndRenderTarget* pRenderTarget = NULL;
 void D2DRender::Update(const std::unordered_map< uintptr_t, WindowManager::WindowData > windowMap)
 {
 	HRESULT hr = S_OK;
@@ -116,15 +108,14 @@ void D2DRender::Update(const std::unordered_map< uintptr_t, WindowManager::Windo
 				if (pBitmap)
 				{
 					// 获取窗口矩形
-					RECT rect;
-					GetWindowRect(windowData.handle, &rect);
+					RECT rect{ pair.second.bodyPosX,pair.second.bodyPosY,pair.second.bodyPosX + (pair.second.rect.right - pair.second.rect.left),pair.second.bodyPosY + (pair.second.rect.bottom - pair.second.rect.top) };
 
 					// 获取位图大小
 					D2D1_SIZE_F bitmapSize = pBitmap->GetSize();
 					D2D1_POINT_2F center = D2D1::Point2F((rect.left + rect.right) / 2.0f, (rect.top + rect.bottom) / 2.0f);
 
 					// 创建旋转矩阵，以位图中心为旋转中心
-					D2D1::Matrix3x2F rotationMatrix = D2D1::Matrix3x2F::Rotation(pair.second.angle * (180 / M_PI), center);
+					D2D1::Matrix3x2F rotationMatrix = D2D1::Matrix3x2F::Rotation(-pair.second.angle * (180 / 3.14159265358979323846), center);
 
 					// 应用组合变换矩阵
 					pRenderTarget->SetTransform(rotationMatrix);
@@ -156,7 +147,6 @@ void D2DRender::Update(const std::unordered_map< uintptr_t, WindowManager::Windo
 	std::wstring windowText = L"Direct2D and WIC Example - Frame Count: " + std::to_wstring(++nFrameCount);
 	SetWindowText(hWnd, windowText.c_str());
 }
-
 
 HRESULT CreateD2DResources(HWND hwnd)
 {
@@ -203,7 +193,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	{
 	case WM_CREATE:
 		// 设置窗口为分层窗口
-		SetWindowLong(hwnd, GWL_EXSTYLE, GetWindowLong(hwnd, GWL_EXSTYLE) | WS_EX_LAYERED);
+		SetWindowLong(hwnd, GWL_EXSTYLE, GetWindowLong(hwnd, GWL_EXSTYLE) | WS_EX_TRANSPARENT | WS_EX_LAYERED);
 		// 设置窗口背景色透明
 		SetLayeredWindowAttributes(hwnd, RGB(0, 0, 0), 0, LWA_COLORKEY);
 		// 设置窗口置顶

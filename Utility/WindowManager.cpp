@@ -8,6 +8,8 @@ int screenHeight = 768;
 D2DRender* render = NULL;
 LRESULT WINAPI MyMouseCallback(int nCode, WPARAM wParam, LPARAM lParam); //callback declaration
 LRESULT WINAPI MyKeyBoardCallback(int nCode, WPARAM wParam, LPARAM lParam);
+
+
 class QueryCallback : public b2QueryCallback
 {
 public:
@@ -70,58 +72,91 @@ void WindowManager::Update() {
 		if (myWorld->paused == false)
 		{
 			for (auto& pair : windowQueue) {
-				// 该代码段的功能是暂停游戏世界，获取窗口的矩形区域和物理体的位置角度，
-				// 然后将窗口移动到对应的位置，最后恢复游戏世界并检查窗口是否正在被拖动。
 				myWorld->paused = true;
 				HWND hwnd = (HWND)pair.first;
 				RECT rect;
 				GetWindowRect(hwnd, &rect);
-				//判断窗口大小是否改变
+
+				// 判断窗口大小是否改变
 				if (pair.second.rect.right - pair.second.rect.left != rect.right - rect.left ||
 					pair.second.rect.bottom - pair.second.rect.top != rect.bottom - rect.top) {
-					//窗口大小改变，更新物理体的位置角度
+					// 窗口大小改变，更新物体的位置角度
 					myWorld->SetBodyRectangle((uintptr_t)hwnd, rect);
 				}
-				pair.second.rect = rect;
+
 				b2Body* body = myWorld->GetBody(pair.first);
 				pair.second.angle = body->GetAngle();
-				b2Vec2 pos = Box2DWorld::ConvertWorldToScreen(body->GetPosition());
-				pos.x -= (rect.right - rect.left) / 2.0f;
-				pos.y -= (rect.bottom - rect.top) / 2.0f;
-				SetWindowPos(hwnd, 0, pos.x, pos.y, 0, 0, SWP_NOSIZE | SWP_NOZORDER | SWP_SHOWWINDOW);
-				myWorld->paused = false;
-				//std::cout << IsDraging(hwnd) << std::endl;
-				//std::cout << pair.second.angle << std::endl;
+				b2Vec2 bodyPos = Box2DWorld::ConvertWorldToScreen(body->GetPosition());
 
-				if (IsDraging(hwnd) == true && m_mouseJoint == NULL) {
-					// 创建一个小的包围盒（AABB）
-					b2AABB aabb{};
-					b2Vec2 d = { 0.001f, 0.001f };
+				bodyPos.x -= (rect.right - rect.left) / 2.0f;
+				bodyPos.y -= (rect.bottom - rect.top) / 2.0f;
+
+				pair.second.bodyPosX = bodyPos.x;
+				pair.second.bodyPosY = bodyPos.y;
+
+				// SetWindowPos(hwnd, 0, bodyPos.x, bodyPos.y, 0, 0, SWP_NOSIZE | SWP_NOZORDER | SWP_SHOWWINDOW);
+				myWorld->paused = false;
+
+
+				if (IsDraging(hwnd) == true)
+				{
+					pair.second.isDraging = true;
+					if (m_mouseJoint == NULL)
+					{
+						// 创建一个小的包围盒（AABB）
+						b2AABB aabb{};
+						b2Vec2 d = { 0.001f, 0.001f };
+						POINT cursorPos;
+						GetCursorPos(&cursorPos);
+						m_mouseWorld = Box2DWorld::ConvertScreenToWorld({ (float)cursorPos.x, (float)cursorPos.y });
+						aabb.lowerBound = m_mouseWorld - d;
+						aabb.upperBound = m_mouseWorld + d;
+
+						// 查询世界中与包围盒重叠的形状
+						callback = QueryCallback(m_mouseWorld);
+						myWorld->world->QueryAABB(&callback, aabb);
+
+						if (callback.m_fixture != NULL)
+						{
+							// 设置鼠标关节的参数
+							float frequencyHz = 5.0f; // 频率
+							float dampingRatio = 0.7f; // 阻尼比
+
+							b2Body* body = callback.m_fixture->GetBody();
+							b2MouseJointDef jd;
+							jd.bodyA = myWorld->wallBody; // 地面物体
+							jd.bodyB = body; // 被拖动的物体
+							jd.target = m_mouseWorld; // 目标位置
+							jd.maxForce = 1000.0f * body->GetMass(); // 最大力
+							b2LinearStiffness(jd.stiffness, jd.damping, frequencyHz, dampingRatio, jd.bodyA, jd.bodyB); // 线性刚度						
+							m_mouseJoint = (b2MouseJoint*)myWorld->world->CreateJoint(&jd);// 创建鼠标关节
+							body->SetAwake(true); // 确保物体是激活状态
+						}
+					}
+				}
+				else {
+					pair.second.isDraging = false;
+					RECT area = pair.second.rect;
+					//GetWindowRect(hwnd, &area);
 					POINT cursorPos;
 					GetCursorPos(&cursorPos);
-					m_mouseWorld = Box2DWorld::ConvertScreenToWorld({ (float)cursorPos.x, (float)cursorPos.y });
-					aabb.lowerBound = m_mouseWorld - d;
-					aabb.upperBound = m_mouseWorld + d;
-
-					// 查询世界中与包围盒重叠的形状
-					callback = QueryCallback(m_mouseWorld);
-					myWorld->world->QueryAABB(&callback, aabb);
-
-					if (callback.m_fixture!= NULL)
+					if (cursorPos.x > area.left && cursorPos.x < area.right && cursorPos.y > area.top && cursorPos.y < area.bottom)
 					{
-						// 设置鼠标关节的参数
-						float frequencyHz = 5.0f; // 频率
-						float dampingRatio = 0.7f; // 阻尼比
+						POINT p1 = cursorPos;
+						POINT centrePoint{ area.left + (area.right - area.left) / 2,  area.top + (area.bottom - area.top) / 2 };
+						POINT p2{};
+						//RotateAngle:计算坐标1以点(centerPoint)为中心旋转后坐标
+						double Angle = pair.second.angle * (180 / 3.14159265358979323846);
+						double Rad = Angle * acos(-1) / 180;
+						p2.x = (p1.x - centrePoint.x) * cos(Rad) - (p1.y - centrePoint.y) * sin(Rad) + centrePoint.x;
+						p2.y = (p1.y - centrePoint.y) * cos(Rad) + (p1.x - centrePoint.x) * sin(Rad) + centrePoint.y;
 
-						b2Body* body = callback.m_fixture->GetBody();
-						b2MouseJointDef jd;
-						jd.bodyA = myWorld->wallBody; // 地面物体
-						jd.bodyB = body; // 被拖动的物体
-						jd.target = m_mouseWorld; // 目标位置
-						jd.maxForce = 1000.0f * body->GetMass(); // 最大力
-						b2LinearStiffness(jd.stiffness, jd.damping, frequencyHz, dampingRatio, jd.bodyA, jd.bodyB); // 线性刚度						
-						m_mouseJoint = (b2MouseJoint*)myWorld->world->CreateJoint(&jd);// 创建鼠标关节
-						body->SetAwake(true); // 确保物体是激活状态
+						SetWindowPos(hwnd, (HWND)-2, (int)(bodyPos.x + (p1.x - p2.x)), (int)(bodyPos.y + (p1.y - p2.y)), 0, 0, 1 | 4 | 20);
+					}
+					else
+					{
+						SetWindowPos(hwnd, (HWND)-2, (int)bodyPos.x, (int)bodyPos.y, 0, 0, 1 | 4 | 20);
+						pair.second.rect = rect;
 					}
 				}
 			}

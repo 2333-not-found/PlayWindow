@@ -10,8 +10,10 @@ public:
 	struct WindowData
 	{
 		HWND handle;
-		RECT rect;
+		RECT rect;// 窗口的矩形区域，用于对比变化
+        float bodyPosX, bodyPosY; // 窗口左上角的坐标
 		float angle;
+        bool isDraging; // 是否正在拖动窗口
 	};
 	WindowManager();
 	void Update();
