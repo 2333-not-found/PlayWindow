@@ -29,6 +29,6 @@ void Hook::InstallHook(HOOKPROC mouseProc, HOOKPROC keyProc) {
 }
 
 void Hook::UninstallHook() {
-	UnhookWindowsHookEx(hook);
-	UnhookWindowsHookEx(keyboardhook);
+	if (hook) UnhookWindowsHookEx(hook);
+	if (keyboardhook) UnhookWindowsHookEx(keyboardhook);
 }

@@ -15,13 +15,8 @@ const b2Vec2 Box2DWorld::ConvertWorldToScreen(b2Vec2 worldPoint)
 {
 	return { worldPoint.x * PIXEL_TO_METER, -((worldPoint.y * PIXEL_TO_METER) - worldHeight) };
 }
-/// <summary>
-/// key参数仅为了标识一个body，并非指针
-/// </summary>
-/// <param name="intptr"></param>
-/// <param name="targetPos"></param>
-/// <param name="key"></param>
-/// <returns></returns>
+
+///key参数仅为了标识一个body，并非指针
 b2Body* Box2DWorld::CreateBody(HWND intptr, uintptr_t key, b2Vec2 targetPos) {
 	RECT rect;
 	GetWindowRect(intptr, &rect);
